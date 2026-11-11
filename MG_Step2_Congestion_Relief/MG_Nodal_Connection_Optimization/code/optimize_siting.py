@@ -84,7 +84,12 @@ def candidate_table(year,portfolio):
         opts=S[S.pwf_kv>=kvmin].copy()
         opts['distance_km']=np.hypot(opts.e_m-ex,opts.n_m-ny)/1000
         # Prefer three physically distinct eligible substation locations.
-        opts=opts.sort_values('distance_km').drop_duplicates('ons_id_subestacao').head(3)
+        # Several PWF buses share one ONS substation (same coordinates, different kV), so
+        # distance alone ties. Break ties deterministically: lowest eligible kV (cheapest
+        # bay/line rates), then bus id. A plain sort_values() is not stable and made the
+        # kept bus depend on the pandas version.
+        opts=(opts.sort_values(['distance_km','pwf_kv','pwf_bus_id'],kind='mergesort')
+                  .drop_duplicates('ons_id_subestacao').head(3))
         if opts.empty:raise RuntimeError(f'No PWF crosswalk candidate for {item.area}')
         cl={'cluster_id':len(clusters),'tech':item.technology,'area':item.area,'baseline_mw':cap,
              'max_area_mw':alpha*cap,'source':ar.resource_basis,'area_lat':ar.latitude,'area_lon':ar.longitude,'mode':item.mode}

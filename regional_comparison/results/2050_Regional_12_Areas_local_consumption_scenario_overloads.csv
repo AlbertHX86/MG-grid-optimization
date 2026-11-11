@@ -1,4 +1,4 @@
 year,scope,scenario_set,balance,pv_factor,reference_overload_sum_mw,before_line_construction_overload_sum_mw,over_limit_lines,max_loading_pct
-2050,Regional_12_Areas,local_consumption,distributed_MG_load,0.35,97.31093572711478,97.31093572711228,2,132.57346832251636
-2050,Regional_12_Areas,local_consumption,distributed_MG_load,0.7,379.7487859674882,384.75941057044366,7,169.87533700276967
-2050,Regional_12_Areas,local_consumption,distributed_MG_load,0.9,670.3809124433672,677.9624819829678,8,191.19069053434302
+2050,Regional_12_Areas,local_consumption,distributed_MG_load,0.35,97.31093572710688,97.31093572710552,2,132.57346832251602
+2050,Regional_12_Areas,local_consumption,distributed_MG_load,0.7,375.9793786154233,383.67522036073194,7,169.875337002769
+2050,Regional_12_Areas,local_consumption,distributed_MG_load,0.9,665.4486929157827,676.5225416714213,8,191.1906905343422
