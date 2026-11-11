@@ -1,0 +1,16 @@
+{
+  "created": "2026-11-11",
+  "file_count": 239,
+  "repo_files": 227,
+  "python_files_ast_checked": 16,
+  "private_released_in_repo": false,
+  "network_buses": 1489,
+  "network_branches": 1890,
+  "candidate_regions": 12,
+  "new_incremental_portfolio_gw": {
+    "2035": 3.217,
+    "2050": 30.10063393185335
+  },
+  "issue": "https://github.com/AlbertHX86/MG-grid-optimization/issues/1",
+  "note": "Basic structural checks only, not a fresh full solver rerun."
+}
