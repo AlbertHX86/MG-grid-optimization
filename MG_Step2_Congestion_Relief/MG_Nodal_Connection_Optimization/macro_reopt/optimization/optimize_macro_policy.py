@@ -156,6 +156,9 @@ def solve_case(name,policy='terminal',demand='low',hydro_stress=False,import_sca
             # This is a RESEARCH restriction, not an estimate of technical potential.
             # It prevents unlimited unverified biomass fuel and new hydro sites.
             for t in ['bio','small_hydro']:
+                # The 2035 biomass target is a policy floor; no independent fuel-supply ceiling is available.
+                if y == 2035 and t == 'bio':
+                    continue
                 ceiling=max(p['policy_2030_gw'][t],p['policy_2050_gw'][t])
                 if policy=='addition':ceiling+=p['policy_addition_baseline_2022_gw'][t]
                 au.add([(cap(v,t),1.) for v in active(s,t)],ceiling-p['base_capacity_gw'][t])
@@ -248,7 +251,8 @@ def solve_case(name,policy='terminal',demand='low',hydro_stress=False,import_sca
        'scenario_config':config_name,'scenario_assumptions':cfg,
        'direct_gas_carbon_price_brl_t':carbon_price,'direct_gas_emission_factor_assumed_t_mwh':gas_factor,
        'fiscal_reidi_rate_assumed':fiscal_rate,'fiscal_eligible_purchase_share_assumed':fiscal_share,
-       'resource_envelope':resource_envelope,'resource_envelope_status':'research ceiling for total bio/small-hydro equal to interpreted2050policy; not proven physical resource potential',
+       'resource_envelope':resource_envelope,'resource_envelope_status':'research ceiling for total bio/small-hydro equal to interpreted2050policy; not proven physical resource potential'
+           + ('; excludes biomass in 2035' if resource_envelope and 2035 in years else ''),
        'code_sha256_at_start':code_sha,
        'hourly_input_sha256':hashlib.sha256((ROOT/'macro/processed/macro_hourly_inputs.csv').read_bytes()).hexdigest(),
        'variables':nv,'equality_rows':Aeq.shape[0],'inequality_rows':Aub.shape[0],
