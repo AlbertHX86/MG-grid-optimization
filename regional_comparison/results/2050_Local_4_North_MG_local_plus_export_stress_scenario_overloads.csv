@@ -1,0 +1,7 @@
+year,scope,scenario_set,balance,pv_factor,reference_overload_sum_mw,before_line_construction_overload_sum_mw,over_limit_lines,max_loading_pct
+2050,Local_4_North_MG,local_plus_export_stress,distributed_MG_load,0.35,97.31093572711478,97.31093572711285,2,132.57346832251633
+2050,Local_4_North_MG,local_plus_export_stress,distributed_MG_load,0.7,379.7487859674882,394.86740041324447,7,169.87533700276953
+2050,Local_4_North_MG,local_plus_export_stress,distributed_MG_load,0.9,670.3809124433672,693.0807052044904,8,191.19069053434285
+2050,Local_4_North_MG,local_plus_export_stress,border_585,0.35,0.0,0.0,0,93.85260770525656
+2050,Local_4_North_MG,local_plus_export_stress,border_585,0.7,5033.4664527225395,4607.0488521908255,3,189.31347694956645
+2050,Local_4_North_MG,local_plus_export_stress,border_585,0.9,9785.440245664107,8779.478833628087,3,243.86254508917213

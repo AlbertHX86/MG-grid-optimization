@@ -1,0 +1,37 @@
+year,technology,area,weight,mode,comment
+2035,solar_central,Arinos,0.30,new_connection,Illustrative allocation of statewide optimized 1 GW
+2035,solar_central,Janauba,0.22,new_connection,Illustrative allocation
+2035,solar_central,Jaiba,0.16,new_connection,Illustrative allocation
+2035,solar_central,Pirapora,0.12,new_connection,Illustrative allocation
+2035,solar_central,Paracatu,0.11,new_connection,Illustrative allocation
+2035,solar_central,Montes Claros,0.09,new_connection,Illustrative allocation
+2035,solar_distributed,MG distributed,1.0,distribution_allowance,Behind-the-meter PV; no HV collector circuit
+2035,bio,Frutal,0.35,new_connection,Illustrative biomass cluster; feedstock not validated
+2035,bio,Ituiutaba,0.35,new_connection,Illustrative biomass cluster; feedstock not validated
+2035,bio,Paracatu,0.30,new_connection,Illustrative biomass cluster; feedstock not validated
+2035,small_hydro,Aimorés,0.20,new_connection,Illustrative small hydro cluster; siting not validated
+2035,small_hydro,Pirapora,0.30,new_connection,Illustrative small hydro cluster; siting not validated
+2035,small_hydro,Diamantina,0.25,new_connection,Illustrative small hydro cluster; siting not validated
+2035,small_hydro,Paracatu,0.25,new_connection,Illustrative small hydro cluster; siting not validated
+2050,solar_central,Arinos,0.30,new_connection,Illustrative future site clusters; huge build-out not site-verified
+2050,solar_central,Janauba,0.22,new_connection,Illustrative future site clusters
+2050,solar_central,Jaiba,0.16,new_connection,Illustrative future site clusters
+2050,solar_central,Pirapora,0.12,new_connection,Illustrative future site clusters
+2050,solar_central,Paracatu,0.11,new_connection,Illustrative future site clusters
+2050,solar_central,Montes Claros,0.09,new_connection,Illustrative future site clusters
+2050,solar_distributed,MG distributed,1.0,distribution_allowance,Behind-the-meter PV; no HV collector circuit
+2050,bio,Frutal,0.35,new_connection,Illustrative biomass cluster; feedstock not validated
+2050,bio,Ituiutaba,0.35,new_connection,Illustrative biomass cluster; feedstock not validated
+2050,bio,Paracatu,0.30,new_connection,Illustrative biomass cluster; feedstock not validated
+2050,small_hydro,Aimorés,0.20,new_connection,Illustrative small hydro cluster
+2050,small_hydro,Pirapora,0.30,new_connection,Illustrative small hydro cluster
+2050,small_hydro,Diamantina,0.25,new_connection,Illustrative small hydro cluster
+2050,small_hydro,Paracatu,0.25,new_connection,Illustrative small hydro cluster
+2050,wind_site,Janauba,0.50,new_connection,High wind-resource candidate; NOT permitted project
+2050,wind_site,Grao Mogol,0.50,new_connection,High wind-resource candidate; NOT permitted project
+2050,biogas,Frutal,0.50,new_connection,Potential livestock/agro biogas; no feedstock audit
+2050,biogas,Ituiutaba,0.30,new_connection,Potential livestock/agro biogas; no feedstock audit
+2050,biogas,Paracatu,0.20,new_connection,Potential livestock/agro biogas; no feedstock audit
+2050,bess,Montes Claros,0.40,co_located_substation,Co-located at existing grid station by assumption; no new line
+2050,bess,Uberaba,0.30,co_located_substation,Co-located at existing grid station by assumption; no new line
+2050,bess,Janauba,0.30,co_located_substation,Co-located at existing grid station by assumption; no new line

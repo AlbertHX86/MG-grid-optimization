@@ -1,0 +1,7 @@
+year,balance,pv_level,retain_fraction,curtailed_fraction,all_283_lines_within_rating,qualification
+2035,distributed_MG_load,0.35,1,0,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2035,distributed_MG_load,0.7,1,0,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2035,distributed_MG_load,0.9,1,0,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2035,border_585,0.35,1,0,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2035,border_585,0.7,1,0,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2035,border_585,0.9,1,0,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed

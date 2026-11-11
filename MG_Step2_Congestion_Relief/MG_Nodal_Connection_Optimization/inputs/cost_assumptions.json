@@ -1,0 +1,56 @@
+{
+  "price_basis": "Indicative 2025 BRL, not a project quote or standardized ANEEL BPR benchmark",
+  "source_epe_2025": "https://www.epe.gov.br/sites-pt/publicacoes-dados-abertos/publicacoes/PublicacoesArquivos/publicacao-276/topico-755/EPE-DEE-RE-071-2025-rev0.pdf",
+  "source_official_cost_bank": "https://dadosabertos.aneel.gov.br/dataset/bpr-banco-de-precos-de-referencia-linha-de-transmissao",
+  "basis_230_kv_epe_line_million_brl_per_km": 1.10418,
+  "basis_230_kv_epe_line_bay_million_brl": 10.50125,
+  "basis_500_kv_epe_line_million_brl_per_km": 2.46923,
+  "basis_500_kv_epe_line_bay_million_brl": 13.39769,
+  "assumed_345_kv_line_million_brl_per_km": 1.65,
+  "assumed_345_kv_bay_million_brl": 12.0,
+  "line_cost_million_brl_per_km": {
+    "230": 1.10418,
+    "345": 1.65,
+    "500": 2.46923,
+    "138": 0.717717
+  },
+  "bay_cost_million_brl_per_unit": {
+    "230": 10.50125,
+    "345": 12.0,
+    "500": 13.39769,
+    "138": 6.30075
+  },
+  "max_circuit_mw_proxy": {
+    "230": 300,
+    "345": 500,
+    "500": 800,
+    "138": 125
+  },
+  "transformer_cost_million_brl_per_mw_assumed": 0.08,
+  "route_multiplier_base": 1.25,
+  "route_multiplier_sensitivity": [
+    1.0,
+    1.25,
+    1.5
+  ],
+  "unit_cost_multiplier_sensitivity": [
+    0.7,
+    1.0,
+    1.3
+  ],
+  "distribution_upgrade_million_brl_per_mw_assumed": 0.1,
+  "annual_o_and_m_fraction_assumed": 0.015,
+  "discount_rate": 0.08,
+  "asset_life_years": 30,
+  "valuation_year": 2025,
+  "allowed_station_voltage_kv": [
+    138,
+    230,
+    345,
+    500
+  ],
+  "description": "EPE 2025 report source lines: 230 kV 1104.18 thousand BRL/km, bay 10501.25 thousand BRL; 500 kV 2469.23 thousand BRL/km, bay 13397.69 thousand BRL. 345 kV and transformer, distribution, circuit capacities and line route multiplier are analytical assumptions. 138 kV inferred as 0.65x line, 0.60x bay of 230 kV, not a verified ANEEL tariff. Station coordinates are ONS 2026 snapshot, not future guarantees.",
+  "assumed_138_kv_line_million_brl_per_km": 0.717717,
+  "assumed_138_kv_bay_million_brl": 6.30075,
+  "station_source": "ONS station coordinates archive (2026-10), later than 2025 baseline; 2035 eligibility NOT independently certified"
+}

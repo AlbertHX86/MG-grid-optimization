@@ -1,0 +1,155 @@
+{
+  "years": [
+    2030,
+    2035,
+    2040,
+    2045,
+    2050
+  ],
+  "block_starts": [
+    2026,
+    2031,
+    2036,
+    2041,
+    2046
+  ],
+  "hours": 8760,
+  "discount_rate": 0.08,
+  "currency": "constant December-2024 BRL; PV valuation end-2025",
+  "base_capacity_gw": {
+    "solar_central": 8.15,
+    "solar_distributed": 5.556,
+    "bio": 2.223,
+    "small_hydro": 0.029,
+    "wind": 0.0,
+    "bess": 0.0,
+    "wind_site": 0.0,
+    "biogas": 0.0
+  },
+  "policy_addition_baseline_2022_gw": {
+    "solar_central": 1.79,
+    "solar_distributed": 2.62,
+    "bio": 2.128,
+    "small_hydro": 0.03
+  },
+  "policy_2030_gw": {
+    "solar_central": 5.9,
+    "solar_distributed": 4.3,
+    "small_hydro": 0.2,
+    "bio": 3.1
+  },
+  "policy_2050_gw": {
+    "solar_central": 18.9,
+    "solar_distributed": 13.5,
+    "small_hydro": 0.7,
+    "bio": 3.1
+  },
+  "hydro_operating_capacity_gw": 13.383167000000002,
+  "gas_operating_capacity_gw": 0.313048,
+  "import_bound_gw": 4.892958500000002,
+  "import_bound_type": "positive peak of load-area/plant-state calibration residual (coverage, losses and exchanges mixed); assumption, not measured interchange or TTC/ATC",
+  "low_demand_growth": 0.0127,
+  "high_demand_growth_after_2035": 0.033178883022339845,
+  "bess_roundtrip_efficiency": 0.9,
+  "bess_duration_hours": 8.0,
+  "gas_dispatch_cost_brl_mwh": 1000.0,
+  "existing_fleet_replacement_cost_included": false,
+  "existing_capacity_retained_to_2050": "research assumption; individual residual service lives unavailable",
+  "new_asset_terminal_value": "straight-line unused service life; end-2050 discounted residual of initial capital",
+  "technology": {
+    "solar_central": {
+      "life_years": 25.0,
+      "capex_brl_kw": 3500.0,
+      "fixed_cost_brl_kw_year": 190.0,
+      "construction_interest_fraction": 0.039,
+      "source": "PDE_2035_Referência.xlsm / GERAL row 18; fixed cost E+G; interest N",
+      "status": "official generic forward planning parameter, not actual project quote"
+    },
+    "bio": {
+      "life_years": 20.0,
+      "capex_brl_kw": 4500.0,
+      "fixed_cost_brl_kw_year": 240.0,
+      "construction_interest_fraction": 0.064,
+      "source": "PDE_2035_Referência.xlsm / GERAL row 28; fixed cost E+G; interest N",
+      "status": "official generic forward planning parameter, not actual project quote"
+    },
+    "small_hydro": {
+      "life_years": 30.0,
+      "capex_brl_kw": 9000.0,
+      "fixed_cost_brl_kw_year": 210.0,
+      "construction_interest_fraction": 0.073,
+      "source": "PDE_2035_Referência.xlsm / GERAL row 37; fixed cost E+G; interest N",
+      "status": "official generic forward planning parameter, not actual project quote"
+    },
+    "wind": {
+      "life_years": 20.0,
+      "capex_brl_kw": 5500.0,
+      "fixed_cost_brl_kw_year": 260.0,
+      "construction_interest_fraction": 0.064,
+      "source": "PDE_2035_Referência.xlsm / GERAL row 23; fixed cost E+G; interest N",
+      "status": "official generic forward planning parameter, not actual project quote"
+    },
+    "bess": {
+      "life_years": 20.0,
+      "capex_brl_kw": 5000.0,
+      "fixed_cost_brl_kw_year": 370.0,
+      "construction_interest_fraction": 0.039,
+      "source": "PDE_2035_Referência.xlsm / GERAL row 50; fixed cost E+G; interest N",
+      "status": "official generic forward planning parameter, not actual project quote"
+    },
+    "solar_distributed": {
+      "life_years": 25.0,
+      "capex_brl_kw": 3516.0,
+      "fixed_cost_brl_kw_year": 190.0,
+      "construction_interest_fraction": 0.0,
+      "dc_ac_ratio_assumed": 1.2,
+      "source": "EPE Caderno MMGD e Baterias 2035 p19: 2024 4-kWp DC installed system R$11720; assumed DC/AC1.2; O&M60+fixed130 and life25 are utility-PV proxies",
+      "status": "2024 published installed DC price; DC/AC ratio, annual cost/life and price-base alignment are explicit research proxies"
+    },
+    "wind_site": {
+      "life_years": 20.0,
+      "capex_brl_kw": 5500.0,
+      "fixed_cost_brl_kw_year": 260.0,
+      "construction_interest_fraction": 0.064,
+      "source": "Assumed high-resource candidate based on 2019 MG temporal shape; no verified candidate station",
+      "status": "official generic forward planning parameter, not actual project quote"
+    },
+    "biogas": {
+      "life_years": 20.0,
+      "capex_brl_kw": 7200.0,
+      "fixed_cost_brl_kw_year": 300.0,
+      "construction_interest_fraction": 0.064,
+      "source": "Unverified research proxy; requires MG fuel supply, lifecycle and project costs"
+    }
+  },
+  "national_reference_average_load_gw": {
+    "2025": 82.69050823726886,
+    "2026": 85.56906811226247,
+    "2027": 88.36602640972642,
+    "2028": 91.22979405489572,
+    "2029": 94.15615049318352,
+    "2030": 97.53980318164474,
+    "2031": 100.65810052145363,
+    "2032": 103.9549494468514,
+    "2033": 107.41027472149668,
+    "2034": 110.91892192656167,
+    "2035": 114.60692821690326
+  },
+  "import_price_brl_mwh": 209.47285574704426,
+  "import_price_type": "2025 observed SE CMO mean, monthly IPCA deflated; flat reference price, not retail tariff/firm PPA/future forecast",
+  "hydro_stress_month_ratio": {
+    "1": 0.7745535382356082,
+    "2": 0.5932611457556234,
+    "3": 0.7125684541177332,
+    "4": 0.7689549113258329,
+    "5": 0.9039489103889827,
+    "6": 1.0,
+    "7": 0.9225426073656763,
+    "8": 0.8127602307208955,
+    "9": 0.5466176357585376,
+    "10": 0.47394171620509584,
+    "11": 0.7377666396538481,
+    "12": 0.7324727111080218
+  },
+  "hydro_hourly_ramp_gw": 3.7884429999999996
+}

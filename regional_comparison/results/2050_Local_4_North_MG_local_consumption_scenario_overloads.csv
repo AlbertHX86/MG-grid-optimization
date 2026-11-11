@@ -1,0 +1,4 @@
+year,scope,scenario_set,balance,pv_factor,reference_overload_sum_mw,before_line_construction_overload_sum_mw,over_limit_lines,max_loading_pct
+2050,Local_4_North_MG,local_consumption,distributed_MG_load,0.35,97.31093572711478,97.31093572711319,2,132.57346832251648
+2050,Local_4_North_MG,local_consumption,distributed_MG_load,0.7,379.7487859674882,375.06913497601187,7,169.87533700276987
+2050,Local_4_North_MG,local_consumption,distributed_MG_load,0.9,670.3809124433672,663.3060059330588,8,191.19069053434322

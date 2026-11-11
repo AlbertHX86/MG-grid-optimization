@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "checked_conditions": 30,
+  "max_relative_tolerance_fraction": 0.17202297716369927,
+  "note": "Checks numerical feasibility and arithmetic only. AC, project permits and actual transmission construction are NOT certified."
+}

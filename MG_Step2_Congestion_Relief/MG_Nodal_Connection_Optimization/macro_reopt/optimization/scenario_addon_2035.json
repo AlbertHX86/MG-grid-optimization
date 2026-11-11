@@ -1,0 +1,8 @@
+{
+  "interconnection_addon_brl_kw_by_tech": {
+    "bio": 358.73,
+    "small_hydro": 694.755,
+    "solar_central": 253.666,
+    "solar_distributed": 100
+  }
+}

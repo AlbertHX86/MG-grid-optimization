@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.DS_Store
+*.log
+.pytest_cache/
+# Do not accidentally publish provider-supplied grid/network data without checking redistribution rights.
+# Remove or adapt these rules only after documented source approval.
+MG_Step2_Congestion_Relief/MG_Nodal_Connection_Optimization/inputs/pwf_2035_*.csv
+MG_Step2_Congestion_Relief/MG_Nodal_Connection_Optimization/inputs/epe_ons_station_crosswalk.csv
+MG_Step2_Congestion_Relief/MG_Nodal_Connection_Optimization/inputs/mg_boundary.geojson
+MG_Step2_Congestion_Relief/MG_Nodal_Connection_Optimization/macro_reopt/macro/processed/macro_hourly_inputs.csv
+MG_Step2_Congestion_Relief/MG_Nodal_Connection_Optimization/macro_reopt/macro/processed/mg_wind_2019_brt_aligned.csv
+
+# Entire offline handoff sections MUST NOT be uploaded.
+02_LOCAL_ONLY_DO_NOT_UPLOAD/
+03_GITHUB_INSTRUCTIONS/
+04_REFERENCE_REPORTS/
+PRIVATE_INPUTS_FOR_LOCAL_REPRODUCTION.zip
+MG_*Reproducible.zip
+MG_Updated_Portfolio_and_Grid_Data_2026-11-11.zip
+# Avoid embedding a copy of the handoff ZIP into a repository.
+MG-grid-optimization_COMPLETE_HANDOFF_*.zip

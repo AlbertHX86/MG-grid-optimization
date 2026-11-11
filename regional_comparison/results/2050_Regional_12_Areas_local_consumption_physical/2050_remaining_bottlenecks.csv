@@ -1,0 +1,5 @@
+year,balance,pv_factor,component,from_bus,to_bus,circuit,rating_mw_proxy,power_mw,excess_mw
+2050,distributed_MG_load,0.35,existing,1646,4475,1,250.0,265.87726492081663,15.877264920816629
+2050,distributed_MG_load,0.7,existing,1646,4475,1,250.0,342.07090966839957,92.07090966839957
+2050,distributed_MG_load,0.9,existing,1609,1613,1,305.0,334.14575618196955,29.145756181969546
+2050,distributed_MG_load,0.9,existing,1646,4475,1,250.0,385.61013523845145,135.61013523845145

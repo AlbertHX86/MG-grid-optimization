@@ -1,0 +1,7 @@
+year,method,balance,pv_level,excess_sum_mw,violated_branches,max_loading_percent
+2050,existing_grid,distributed_MG_load,0.35,97.3109357271266,2,132.57346832252398
+2050,existing_grid,distributed_MG_load,0.7,398.3507387047472,7,169.87533700278328
+2050,existing_grid,distributed_MG_load,0.9,698.4025406931752,8,191.19069053436058
+2050,parallel_line_screen,distributed_MG_load,0.35,15.877264920816629,1,106.35090596832666
+2050,parallel_line_screen,distributed_MG_load,0.7,93.76863954098695,2,136.82836386735983
+2050,parallel_line_screen,distributed_MG_load,0.9,171.83889859741316,2,154.2440540953806

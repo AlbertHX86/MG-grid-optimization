@@ -1,0 +1,4 @@
+year,balance,pv_factor,feasible,minimum_replacement_dispatch_mw,replaced_share_of_new_PV_wind_output,max_rating_violation_after_mw,source
+2035,distributed_MG_load,0.35,True,0.0,0.0,0.0,"Existing new PV/wind dispatched down, exactly compensated at assumed sink; resource headroom, SOC, and 8760h feasibility not verified"
+2035,distributed_MG_load,0.7,True,0.0,0.0,0.0,"Existing new PV/wind dispatched down, exactly compensated at assumed sink; resource headroom, SOC, and 8760h feasibility not verified"
+2035,distributed_MG_load,0.9,True,0.0,0.0,0.0,"Existing new PV/wind dispatched down, exactly compensated at assumed sink; resource headroom, SOC, and 8760h feasibility not verified"

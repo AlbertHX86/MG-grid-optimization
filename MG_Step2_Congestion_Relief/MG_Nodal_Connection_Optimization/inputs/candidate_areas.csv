@@ -1,0 +1,13 @@
+area,latitude,longitude,coordinate_basis,resource_basis,source_url
+Arinos,-15.90,-46.05,Embrapa municipal reference location,Solar PV regional proxy,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf
+Janauba,-15.78,-43.30,Embrapa municipal reference location,Solar PV / wind candidate region,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf
+Jaiba,-15.338,-43.674,IBGE municipality seat location,Solar PV regional proxy,https://geoftp.ibge.gov.br/cartas_e_mapas/mapas_para_fins_de_levantamentos_estatisticos/contagem_da_populacao_e_censo_agropecuario_2007/mapas_municipais_estatisticos/mg/jaiba.pdf
+Pirapora,-17.35,-44.91,Embrapa municipal reference location,Solar PV / small hydro proxy,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf
+Paracatu,-17.23,-46.88,Embrapa municipal reference location,Solar PV / biomass / biogas candidate region,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf
+Montes Claros,-16.68,-43.83,Embrapa municipal reference location,Solar PV / BESS candidate region,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf
+Frutal,-20.03,-48.93,Embrapa municipal reference location,Biomass / biogas candidate region,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf
+Ituiutaba,-18.96,-49.51,Embrapa municipal reference location,Biomass / biogas candidate region,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf
+Aimorés,-19.49,-41.07,Embrapa municipal reference location,Small hydro proxy only; site not certified,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf
+Diamantina,-18.23,-43.64,Embrapa municipal reference location,Small hydro proxy only; site not certified,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf
+Grao Mogol,-16.5575,-42.8939,Official municipality location,Wind candidate region; NOT licensed wind farm,https://graomogol.mg.gov.br/dados-gerais/
+Uberaba,-19.73,-47.95,Embrapa municipal reference location,BESS grid-area proxy,https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/974352/1/bol87.pdf

@@ -1,0 +1,31 @@
+item,error,tol,passed
+2035 solar_central allocation,1.1368683772161603e-13,0.0001,True
+2035 bio allocation,0.0,0.0001,True
+2035 small_hydro allocation,0.0,0.0001,True
+2035 cost by arc,7.105427357601002e-15,1e-05,True
+2035 per-arc circuits,0.0,1e-05,True
+2035 robust post-uplift peak,0.0,1e-05,True
+2035 MILP gap,0.0,0.0001,True
+2035 solver constraints,2.842170943040401e-14,1e-05,True
+2035 technology capacity residual,1.1368683772161603e-13,0.0001,True
+2035 connection total,0.0,0.0001,True
+2035 hourly supply balance,1.0000018590972104e-09,1e-06,True
+2035 normal shed GWh,0.0,1e-05,True
+2035 solver balance,1.7763568394002505e-15,1e-06,True
+2050 solar_central allocation,1.8189894035458565e-12,0.0001,True
+2050 bio allocation,0.0,0.0001,True
+2050 small_hydro allocation,0.0,0.0001,True
+2050 wind_site allocation,0.0,0.0001,True
+2050 biogas allocation,0.0,0.0001,True
+2050 bess allocation,6.639311322942376e-11,0.0001,True
+2050 cost by arc,5.684341886080802e-14,1e-05,True
+2050 per-arc circuits,4.092726157978177e-12,1e-05,True
+2050 robust post-uplift peak,4.263256414560601e-14,1e-05,True
+2050 MILP gap,1.7202297716369927e-05,0.0001,True
+2050 solver constraints,6.639311322942376e-11,1e-05,True
+2050 technology capacity residual,6.639311322942376e-11,0.0001,True
+2050 connection total,0.0,0.0001,True
+2050 hourly supply balance,1.0000019701195129e-09,1e-06,True
+2050 normal shed GWh,0.0,1e-05,True
+2050 zero gas/foreign imports,0.0,1e-06,True
+2050 solver balance,1.0480505352461478e-13,1e-06,True

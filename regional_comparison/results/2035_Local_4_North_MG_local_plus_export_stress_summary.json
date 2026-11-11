@@ -1,0 +1,33 @@
+{
+  "year": 2035,
+  "scope": "Local_4_North_MG",
+  "scenario_set": "local_plus_export_stress",
+  "n_scenarios": 6,
+  "n_areas_considered": 10,
+  "n_areas_free": 4,
+  "n_all_bus": 1489,
+  "n_all_branch": 1890,
+  "n_monitored_lines": 283,
+  "n_active_siting_arcs": 12,
+  "new_capacity_gw": 3.216999999999998,
+  "optimized_connection_cost_million_brl": 1357.8768535761496,
+  "reference_connection_cost_million_brl": 1401.052954877071,
+  "connection_saving_million_brl": 43.176101300921346,
+  "worst_case_thermal_uplift_proxy_mw": 0.0,
+  "reference_uplift_proxy_mw": 0.0,
+  "site_plus_uprate_proxy_score_million_brl": 1357.8768535761496,
+  "screen_penalty_assumed_million_brl_per_mw": 1.0,
+  "solver_status": 0,
+  "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "solver_mip_gap": 0.0,
+  "max_constraint_violation": 0.0,
+  "run_seconds": 0.03678237700000864,
+  "focus_areas": [
+    "Arinos",
+    "Janauba",
+    "Jaiba",
+    "Montes Claros"
+  ],
+  "fixed_technical_portfolio": true,
+  "note": "Uplift cost is ONLY a linear penalty, not a buildable project cost. 2050 uses 2035 PWF topology."
+}

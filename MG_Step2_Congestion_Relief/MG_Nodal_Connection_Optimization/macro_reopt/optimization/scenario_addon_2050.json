@@ -1,0 +1,31 @@
+{
+  "carbon_price_brl_tco2": 250,
+  "gas_tco2_per_mwh": 0.4,
+  "eligible_purchase_tax_relief": 0,
+  "eligible_purchase_share_of_capex": 0,
+  "fiscal_eligible_technologies": [
+    "solar_central",
+    "solar_distributed",
+    "wind",
+    "wind_site",
+    "bess"
+  ],
+  "wind_site_mean_cf": 0.3,
+  "wind_site_build_cap_gw": 2.0,
+  "biogas_build_cap_gw": 0.4,
+  "biogas_availability_factor": 0.7,
+  "biogas_capex_brl_kw": 7200,
+  "biogas_fixed_brl_kw_year": 300,
+  "biogas_fuel_cost_brl_mwh": 250,
+  "bess_duration_hours": 8.0,
+  "additional_bess_energy_cost_brl_kw_h": 450.0,
+  "interconnection_addon_brl_kw_by_tech": {
+    "bess": 97.471,
+    "bio": 358.73,
+    "biogas": 642.812,
+    "small_hydro": 351.189,
+    "solar_central": 159.232,
+    "wind_site": 209.017,
+    "solar_distributed": 100
+  }
+}

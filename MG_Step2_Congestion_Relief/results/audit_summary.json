@@ -1,0 +1,216 @@
+{
+  "passed": true,
+  "n_checks": 29,
+  "checks": [
+    {
+      "name": "2035 6 cases for each method",
+      "pass": true,
+      "observed": 12.0,
+      "target": 12.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2035 network bus count",
+      "pass": true,
+      "observed": 1489.0,
+      "target": 1489.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2035 network branch count",
+      "pass": true,
+      "observed": 1890.0,
+      "target": 1890.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2035 selected thermal line count",
+      "pass": true,
+      "observed": 283.0,
+      "target": 283.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2035 incremental power-flow residual",
+      "pass": true,
+      "observed": 9.313225746154785e-10,
+      "target": 0.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2035 largest post-line overload from cases",
+      "pass": true,
+      "observed": 0.0,
+      "target": 0.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2035 reproduces old six-case PTDF flow screening",
+      "pass": true,
+      "observed": 0.0,
+      "target": 0.0,
+      "tolerance": 1e-05
+    },
+    {
+      "name": "2035 actual number of candidate circuits",
+      "pass": true,
+      "observed": 0.0,
+      "target": 0.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2035 total nominal circuit cost recomputed",
+      "pass": true,
+      "observed": 0.0,
+      "target": 0.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2035 dispatch test count",
+      "pass": true,
+      "observed": 6.0,
+      "target": 6.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2035 conditional redispatch test residual",
+      "pass": true,
+      "observed": 0.0,
+      "target": 0.0,
+      "tolerance": 0.0001
+    },
+    {
+      "name": "2050 6 cases for each method",
+      "pass": true,
+      "observed": 12.0,
+      "target": 12.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 network bus count",
+      "pass": true,
+      "observed": 1489.0,
+      "target": 1489.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 network branch count",
+      "pass": true,
+      "observed": 1890.0,
+      "target": 1890.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 selected thermal line count",
+      "pass": true,
+      "observed": 283.0,
+      "target": 283.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 incremental power-flow residual",
+      "pass": true,
+      "observed": 5.607034836430103e-09,
+      "target": 0.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 largest post-line overload from cases",
+      "pass": true,
+      "observed": 172.3070556765751,
+      "target": 172.3070556765751,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 reproduces old six-case PTDF flow screening",
+      "pass": true,
+      "observed": 1.3420503819361329e-08,
+      "target": 0.0,
+      "tolerance": 1e-05
+    },
+    {
+      "name": "2050 actual number of candidate circuits",
+      "pass": true,
+      "observed": 12.0,
+      "target": 12.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 total nominal circuit cost recomputed",
+      "pass": true,
+      "observed": 4424.920162697375,
+      "target": 4424.920162697376,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 candidate phases finite",
+      "pass": true,
+      "observed": 1.0,
+      "target": 1.0,
+      "tolerance": 0
+    },
+    {
+      "name": "2050 all proposed circuits positive cost",
+      "pass": true,
+      "observed": 1.0,
+      "target": 1.0,
+      "tolerance": 0
+    },
+    {
+      "name": "2050 dispatch test count",
+      "pass": true,
+      "observed": 6.0,
+      "target": 6.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 conditional redispatch test residual",
+      "pass": true,
+      "observed": 0.0,
+      "target": 0.0,
+      "tolerance": 0.0001
+    },
+    {
+      "name": "2035 no selected-line overload",
+      "pass": true,
+      "observed": 0.0,
+      "target": 0.0,
+      "tolerance": 1e-05
+    },
+    {
+      "name": "2050 local-only 3 scenarios",
+      "pass": true,
+      "observed": 6.0,
+      "target": 6.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 local-only computed line count",
+      "pass": true,
+      "observed": 7.0,
+      "target": 7.0,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 local-only line costs",
+      "pass": true,
+      "observed": 236.92578405032972,
+      "target": 236.92578405032975,
+      "tolerance": 1e-06
+    },
+    {
+      "name": "2050 all-case line costs positive",
+      "pass": true,
+      "observed": 1.0,
+      "target": 1.0,
+      "tolerance": 0
+    }
+  ],
+  "source_data_checksums": "INPUT_SHA256.json",
+  "known_gaps": [
+    "AC power flow after new circuits not run",
+    "2050 official network not available",
+    "unpriced two remaining 230 kV interfaces",
+    "conditional dispatch replacement headroom not validated"
+  ]
+}

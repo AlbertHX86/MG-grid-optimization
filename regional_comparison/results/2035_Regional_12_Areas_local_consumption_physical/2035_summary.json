@@ -1,0 +1,30 @@
+{
+  "year": 2035,
+  "source": "EPE 2035 representative PWF AC P-flow calibration; one fixed nodal siting plan; six concurrent stress cases",
+  "n_buses": 1489,
+  "original_branch_count": 1890,
+  "monitored_existing_lines": 283,
+  "reference_grid_only": true,
+  "initial_worst_case_sum_of_overloads_mw": 0.0,
+  "initial_sum_over_all_cases_mw": 0.0,
+  "initial_overloaded_unique_monitored_lines": 0,
+  "initial_max_loading_pct": 90.28025452735243,
+  "greedy_added_parallel_circuits": 0,
+  "cost_assumed_million_brl": 0.0,
+  "remaining_worst_case_sum_of_overloads_mw": 0.0,
+  "remaining_sum_over_all_cases_mw": 0.0,
+  "remaining_unique_overloaded_lines_including_added_circuits": 0,
+  "remaining_max_loading_pct": 90.28025452735243,
+  "all_cases_meet_283_monitored_constraints": true,
+  "nodal_equation_max_residual_MW": 9.528022815175063e-11,
+  "corrective_dispatch_all_cases_feasible": true,
+  "corrective_dispatch_worst_case_mw": 0.0,
+  "n_candidate_branches_without_usable_coords": 71,
+  "critical_qualifications": [
+    "Line upgrades are illustrative identical parallel circuits with Euclidean route lengths; not licensed or costed projects.",
+    "Model is incremental linearised DC on 2035 reference AC flows, not post-expansion AC solution.",
+    "Transformers, Q constraints, all equipment, stability and full 8760h nodal operation are not checked.",
+    "2050 uses 2035 network and assumes input nodal siting; new-project land/fuel qualifications unverified.",
+    "The heuristic chooses the next most cost-effective existing monitored line; no optimality guarantee."
+  ]
+}
