@@ -200,35 +200,43 @@ def assess(net, inj, case, dfax, crd, groups, growth_mw=0.0, max_upgrades=25):
         lab = net.branch_label(e)
         inc_pct = float(over[iw] / r.lim[m][iw])
         km, basis = (net.line_length_km(e, crd) if gkey[0] == 'line' else (np.nan, 'n/a'))
+        # Two classifications are reported side by side:
+        #  * length rule (the first implementation): a line is minor only if a parallel circuit
+        #    would be <= MINOR_LINE_KM;
+        #  * uprate rule (added AFTER the first results were seen): a line needing
+        #    <= MINOR_UPRATE of its limit counts as an uprate/reconductor regardless of length.
         if gkey[0] == 'line':
-            klass = ('minor: uprate / reconductor in existing corridor' if inc_pct <= MINOR_UPRATE else
-                     'unclassified (length unknown)' if not np.isfinite(km) else
-                     'minor: short parallel circuit in existing corridor' if km <= MINOR_LINE_KM else
-                     'major: new long circuit')
+            klass_len = ('unclassified (length unknown)' if not np.isfinite(km) else
+                         'minor: short parallel circuit in existing corridor' if km <= MINOR_LINE_KM else
+                         'major: new long circuit')
+            klass = ('minor: uprate / reconductor in existing corridor' if inc_pct <= MINOR_UPRATE else klass_len)
         else:
-            klass = 'minor: add transformer bank at existing substation'
+            klass = klass_len = 'minor: add transformer bank at existing substation'
         ups.append({'order': len(ups) + 1, 'upgrade_type': gkey[0], 'upgrade': gkey[1],
                     'n_branches_in_group': len(members), 'worst_branch': f"{lab['from_name']}-{lab['to_name']}",
                     'kv': lab['kv'], 'limit_mw': float(r.lim[m][iw]), 'alpha_before': a,
                     'max_flow_at_full_need_mw': float(flow_full[iw]),
                     'required_increase_mw': float(over[iw]), 'required_increase_pct': 100 * inc_pct,
                     'worst_condition': 'N-0' if r.cont[m][iw] < 0 else 'N-1',
-                    'length_km': km, 'length_basis': basis, 'classification': klass})
+                    'length_km': km, 'length_basis': basis, 'classification': klass,
+                    'classification_length_rule': klass_len})
         relieved.update(members)
     if ups:
         res['n_upgrades_to_alpha1'] = len(ups)
         res['alpha_after_upgrades'] = net.max_scale(r, dfax, total=need, relieved=frozenset(relieved))[0]
-    # Verdict (thresholds provisional, issue #3).
-    if need > headroom + 1e-6:
-        verdict = 'energy-limited: cannot be absorbed this way'
-    elif alpha >= 1.0:
-        verdict = 'no action'
-    elif ups and res.get('alpha_after_upgrades', 0) >= 1.0 and len(ups) <= MAX_MINOR_ELEMENTS and \
-            all(u['classification'].startswith('minor') for u in ups):
-        verdict = 'minor'
-    else:
-        verdict = 'major'
-    res['verdict'] = verdict
+
+    # Verdicts (thresholds provisional, issue #3), under both classifications.
+    def verdict(col):
+        if need > headroom + 1e-6:
+            return 'energy-limited: cannot be absorbed this way'
+        if alpha >= 1.0:
+            return 'no action'
+        if ups and res.get('alpha_after_upgrades', 0) >= 1.0 and len(ups) <= MAX_MINOR_ELEMENTS and \
+                all(u[col].startswith('minor') for u in ups):
+            return 'minor'
+        return 'major'
+    res['verdict'] = verdict('classification')
+    res['verdict_length_rule'] = verdict('classification_length_rule')
     return res, ups
 
 
@@ -363,19 +371,19 @@ COND_LABEL = {'S1_peak_delivery': 'S1 midday peak delivery (LP-used output)',
 def write_results_md(chk, ups, poi, base, facs, info):
     ref = chk[(chk.siting == 'reference') & (chk.dfax_cut == DFAX_CUT) & (chk.condition != 'S1_plus_existing_pv_dg')]
     t = ref[['year', 'condition', 'case', 'need_mw', 'energy_headroom_mw', 'alpha', 'deliverable_mw',
-             'n_upgrades_to_alpha1', 'verdict', 'binding_element', 'binding_contingency']].copy()
+             'n_upgrades_to_alpha1', 'verdict', 'verdict_length_rule', 'binding_element', 'binding_contingency']].copy()
     t['condition'] = t.condition.map(COND_LABEL)
     t.columns = ['year', 'condition', 'absorption', 'need MW', 'energy headroom MW ↑', 'α ↑', 'deliverable MW ↑',
-                 'upgrade groups ↓', 'verdict', 'first binding element', 'under']
+                 'upgrade groups ↓', 'verdict (uprate rule)', 'verdict (50 km rule only)', 'first binding element', 'under']
     t['year'] = t['year'].astype(str)
     fac = facs.pivot_table(index=['year', 'technology'], columns='condition', values='factor').reset_index()
     fac['year'] = fac['year'].astype(str)
     u = ups[(ups.siting == 'reference') & (~ups.case.str.contains('load2050'))] if len(ups) else ups
     u = u[['year', 'condition', 'case', 'order', 'upgrade', 'kv', 'limit_mw', 'required_increase_mw',
-           'required_increase_pct', 'worst_condition', 'length_km', 'classification']].copy()
+           'required_increase_pct', 'worst_condition', 'length_km', 'classification', 'classification_length_rule']].copy()
     u['year'] = u['year'].astype(str); u['condition'] = u.condition.map(COND_LABEL)
     u.columns = ['year', 'condition', 'absorption', '#', 'upgrade', 'kV', 'limit MW', 'needed +MW ↓', 'needed +% ↓',
-                 'worst', 'length km', 'class']
+                 'worst', 'length km', 'class (uprate rule)', 'class (50 km rule only)']
     sens = chk[(chk.dfax_cut == DFAX_CUT) & (chk.condition != 'S1_plus_existing_pv_dg')].pivot_table(
         index=['year', 'condition', 'case'], columns='siting', values='alpha').reset_index()
     sens['year'] = sens['year'].astype(str); sens['condition'] = sens.condition.map(COND_LABEL)
@@ -384,9 +392,10 @@ def write_results_md(chk, ups, poi, base, facs, info):
     d0 = d0[(d0[0.0] - d0[DFAX_CUT]).abs() > 1e-9].copy()
     d0['year'] = d0['year'].astype(str); d0['condition'] = d0.condition.map(COND_LABEL)
     ex = chk[chk.condition == 'S1_plus_existing_pv_dg'][['year', 'case', 'need_mw', 'alpha', 'deliverable_mw',
-                                                         'n_upgrades_to_alpha1', 'verdict']].copy()
+                                                         'n_upgrades_to_alpha1', 'verdict', 'verdict_length_rule']].copy()
     ex['year'] = ex['year'].astype(str)
-    ex.columns = ['year', 'absorption', 'need MW', 'α ↑', 'deliverable MW ↑', 'upgrade groups ↓', 'verdict']
+    ex.columns = ['year', 'absorption', 'need MW', 'α ↑', 'deliverable MW ↑', 'upgrade groups ↓', 'verdict (uprate rule)',
+                  'verdict (50 km rule only)']
     p = poi[['station', 'kv', 'areas', 'hc_A1_mg_backdown_mw', 'hc_A2_displace_inflow_mw', 'hc_B_export_mw',
              'hc_B_export_n0_mw', 'binding_B', 'binding_B_contingency']].copy()
     p['kv'] = p['kv'].astype(str)
@@ -427,10 +436,13 @@ def write_results_md(chk, ups, poi, base, facs, info):
         f"{info['lp_load_twh']['2050'] if '2050' in info['lp_load_twh'] else info['lp_load_twh'][2050]:.1f} TWh) absorb injection first.",
         f"- Siting: nearest eligible station at the allocation weights (`reference_siting_YYYY.csv`); MILP sitings and "
         f"BESS-at-load are sensitivities. Study conditions: mean LP output over the top {info['top_hours_fraction']:.0%} of hours.",
-        f"- Provisional minor/major thresholds (issue #3): a line needing ≤ +{info['minor_uprate_fraction']:.0%} is an uprate/"
-        f"reconductor, otherwise a parallel circuit ≤ {info['minor_line_km']:.0f} km is minor and longer is major; adding "
-        f"transformer banks at an existing substation is minor; more than {info['max_minor_upgrade_groups']} upgrade groups "
-        f"is major; a case whose need exceeds its energy headroom is energy-limited.",
+        f"- Provisional minor/major thresholds (issue #3). Two line rules are reported side by side: the **50 km rule** "
+        f"(the first implementation: a parallel circuit ≤ {info['minor_line_km']:.0f} km is minor, longer is major) and the "
+        f"**uprate rule**, which additionally treats a line needing ≤ +{info['minor_uprate_fraction']:.0%} of its limit as an "
+        f"uprate/reconductor (minor) regardless of length. The uprate rule was added after the first results were seen and "
+        f"it changes several 2050 verdicts from major to minor, so read both columns. Adding transformer banks at an existing "
+        f"substation is minor; more than {info['max_minor_upgrade_groups']} upgrade groups is major; a case whose need exceeds "
+        f"its energy headroom is energy-limited.",
         '',
         '## LP study factors (fraction of new nameplate)',
         '',
@@ -472,6 +484,9 @@ def write_results_md(chk, ups, poi, base, facs, info):
         '',
         '## Not covered',
         '',
+        '- **No midday base case.** The PWF is an evening snapshot (existing PV at 0 MW). The main tables add only the NEW '
+        'resources to it. With existing PV/DG added (sensitivity above) the export case binds on the same Itajubá 3–Cachoeira '
+        'Paulista interface even in 2035, so midday conclusions are conditional on the base case.',
         '- AC voltage/reactive limits, stability, N-2/N-1-1; the 2050 topology is the frozen 2035 PWF; one LP weather year.',
         '- One network snapshot: the annual extra-curtailment criterion (≤5% in issue #3) is not evaluated; '
         'gaps are MW at the study hours.',
