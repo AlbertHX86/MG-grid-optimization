@@ -1,0 +1,14 @@
+tech,area,bus_id,station,kv,new_capacity_mw,year
+solar_central,Arinos,39813,ARINOS 2,500,300.000000,2035
+solar_central,Janauba,1708,JANAUBA 3,230,220.000000,2035
+solar_central,Jaiba,38971,JAIBA,230,160.000000,2035
+solar_central,Pirapora,1524,PIRAPORA 2,345,120.000000,2035
+solar_central,Paracatu,1523,PARACATU 4,500,110.000000,2035
+solar_central,Montes Claros,1493,MONTESCLAROS2,345,90.000000,2035
+bio,Frutal,3842,P. COLOMBIA,345,306.950000,2035
+bio,Ituiutaba,38902,MONTE ALEGRE2,345,306.950000,2035
+bio,Paracatu,1523,PARACATU 4,500,263.100000,2035
+small_hydro,Aimorés,1637,AIMORES-SE,230,59.200000,2035
+small_hydro,Pirapora,1524,PIRAPORA 2,345,88.800000,2035
+small_hydro,Diamantina,26470,P. JUSCELINO,345,74.000000,2035
+small_hydro,Paracatu,1523,PARACATU 4,500,74.000000,2035

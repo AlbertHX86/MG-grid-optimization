@@ -23,6 +23,29 @@ This repository package contains the existing computational workflows and saved 
 
 The 2050 case **reuses the 2035 network as a stress-test proxy**, not an official 2050 planning case. Reported connection costs depend on assumptions about candidate siting and routes. Residual overloads remain after parallel-circuit screening. Values from alternative scenarios and optimization stages must not be combined without reconciling their definitions.
 
+## Part II (revised): hosting capacity of the existing grid ([#3](https://github.com/AlbertHX86/MG-grid-optimization/issues/3))
+
+The project driver is now: **how much new generation can the existing MG grid deliver, and does the fixed 2035/2050 portfolio need major grid improvements?** This follows the course case studies (NREL Oregon offshore wind: "the existing system may support up to 2.6 GW"; CAISO portfolio-driven transmission planning).
+
+- **Code:** `hosting_capacity/`.
+  - DC N-0/N-1 screen on 283 lines + 272 network-transformer branches, with 437 LODF contingencies.
+  - Study conditions come from the LP's own hourly dispatch.
+  - Absorption of the new MW is explicit, as one of three cases:
+    - **A1:** MG hydro/thermal back-down.
+    - **A2:** displaced boundary inflows, including the Estreito HVDC infeed.
+    - **B:** export to the rest of the SIN.
+  - This replaces the load-proportional convention that produced the 663 MW Vale do Aço result.
+- **Results:** [`hosting_capacity/RESULTS.md`](hosting_capacity/RESULTS.md) (generated). Summary of the current run (reference siting, provisional thresholds):
+  - **2035:** deliverable under every absorption case with 3–7× margin. No grid action.
+  - **2050 midday (8.2 GW of LP-used new output):**
+    - MG's own back-down headroom (5.6 GW in the PWF snapshot) cannot absorb it.
+    - Export delivers 7.5 GW. One uprate (+3.7%) on the Itajubá 3–Cachoeira Paulista 500 kV interface closes the gap. With 2050 load growth, export needs no upgrade.
+  - **2050 evening:** BESS discharge in the north needs 5–9 minor upgrade groups (transformer banks at Irapé, Montes Claros 2, Janaúba 3, Marimbondo; 345 kV uprates). Placing BESS near load reduces this to ≤1.
+  - **New 500 kV corridor or HVDC:** none required in any LP-consistent case.
+- **Run** (after restoring the private inputs, see below): `bash run_hosting_capacity.sh`. It runs the regression gate `hosting_capacity/check_engine.py` first.
+
+> **Note (2026-11-11):** `regional_comparison/results/` was regenerated after making the substation/kV tie-break in `candidate_table` deterministic. The connection costs therefore differ from the PDF draft (e.g. 2035 Local-4 R$1,285.10M vs 1,357.88M). The PDF has not been updated. `SHA256SUMS.txt` predates these changes.
+
 ## Project layout
 
 ```text
