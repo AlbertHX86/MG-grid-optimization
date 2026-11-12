@@ -1,20 +1,20 @@
 \begin{table}[!htbp]
 \centering
 \footnotesize
-\caption{Network-constrained 8,760-h production cost (PyPSA, monthly, lazy flowgates on all N-0/N-1 rows). System cost = production + unserved energy at R\$ 8,327.76/MWh + unused renewable energy (VRE curtailment and unused hydro budget) at R\$ 209.47/MWh.}
+\caption{Network-constrained 8,760-h production cost (PyPSA, monthly, lazy flowgates on all N-0/N-1 rows). System cost = production + unserved energy at R\$ 8,327.76/MWh + unused zero-cost energy (curtailment of profile-based resources and unused hydro budget) at R\$ 209.47/MWh. Unused \%: share of the available profile-based and hydro energy; Cong. curt.: unused energy above the same year without network limits, in the same units.}
 \label{tab:pcm}
 \begin{adjustbox}{max width=\linewidth}
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{lrrrrrrrr}
 \toprule
-Scenario & Production $\downarrow$ & Unserved GWh $\downarrow$ & Unused RE TWh $\downarrow$ & System cost $\downarrow$ & Congestion $\downarrow$ & Rows \\
+Scenario & Production $\downarrow$ & Unserved GWh $\downarrow$ & Unused TWh $\downarrow$ & Unused \% $\downarrow$ & Cong. curt. \% $\downarrow$ & System cost $\downarrow$ & Congestion $\downarrow$ & Rows \\
 \midrule
-2035, no network limits & 480.2 & 0.0 & 1.47 & 787 & 0 & 0 \\
-2035, existing grid & 480.2 & 0.0 & 1.47 & 787 & 0 & 2 \\
-2050, no network limits & 44.6 & 0.0 & 17.29 & 3,666 & 0 & 0 \\
-2050, existing grid & 48.3 & 689.5 & 17.64 & 9,486 & 5,820 & 679 \\
-2050, grid + plan & 46.6 & 5.9 & 17.29 & 3,718 & 52 & 401 \\
-2050 BESS at load, existing grid & 45.2 & 78.3 & 17.36 & 4,333 & 667 & 319 \\
-2050 BESS at load, grid + plan & 44.7 & 46.7 & 17.33 & 4,064 & 399 & 298 \\
+2035, no network limits & 480.2 & 0.0 & 1.47 & 1.8 & 0.00 & 787 & 0 & 0 \\
+2035, existing grid & 480.2 & 0.0 & 1.47 & 1.8 & 0.00 & 787 & 0 & 2 \\
+2050, no network limits & 44.6 & 0.0 & 15.01 & 13.4 & 0.00 & 3,189 & 0 & 0 \\
+2050, existing grid & 48.3 & 689.5 & 15.38 & 13.7 & 0.33 & 9,013 & 5,824 & 679 \\
+2050, grid + plan & 46.6 & 5.9 & 15.03 & 13.4 & 0.01 & 3,243 & 54 & 401 \\
+2050 BESS at load, existing grid & 45.2 & 78.3 & 15.08 & 13.4 & 0.06 & 3,857 & 667 & 319 \\
+2050 BESS at load, grid + plan & 44.7 & 46.7 & 15.06 & 13.4 & 0.04 & 3,588 & 399 & 298 \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}

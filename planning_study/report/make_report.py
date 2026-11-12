@@ -318,6 +318,9 @@ def adequacy():
                          ('elcc_pct_of_nameplate', r'ELCC (\% of nameplate) $\uparrow$', 1)],
           r'Effective load-carrying capability by the CAISO calibration (Lecture 11, method A).', 'tab:elcc', size=r'\scriptsize')
     b = pd.read_csv(R2 / 'adequacy_smc.csv')
+    GAPRES = 12000.0 / 2 ** 7               # adequacy.firm_gap(hi=12000, tol=100): bisection stops at 93.75 MW
+    assert np.allclose(np.round(b.firm_capacity_gap_mw / GAPRES), b.firm_capacity_gap_mw / GAPRES)
+    num('gapres', GAPRES)
     b['o'] = b.counting.ne('nameplate'); b['h'] = b.hydrology.ne('normal')
     b = b.sort_values(['year', 'h', 'o']).drop(columns=['o', 'h'])
     b['hydrology'] = b.hydrology.str.replace(' analogue', '', regex=False)
@@ -328,7 +331,8 @@ def adequacy():
           r'Method B (sequential Monte Carlo, energy-limited PyPSA dispatch, ' + str(int(b.samples.max())) + r' outage histories per case; '
           r'dry = dry-hydrology analogue). EUE in MWh/yr and \% of load; P(any): probability of any shortfall in the year. '
           r'P(any shortfall) bounds LOLE from below (each year with a shortfall has $\ge$1 loss-of-load day). Firm gap: perfect capacity '
-          r'for P(any shortfall) $\le$ 0.1. \enquote{Deliverable only} scales the output of new resources by $d$ in every hour, a loose upper '
+          r'for P(any shortfall) $\le$ 0.1, by bisection on 0--12,000 MW to ' + f'{GAPRES:.2f}' + r'~MW resolution (each value is the upper end of '
+          r'its interval). \enquote{Deliverable only} scales the output of new resources by $d$ in every hour, a loose upper '
           r'bound in an energy dispatch (midday output is deliverable). $^\dagger$Depends on how energy deficits are spread over hours '
           r'(rotating 5\% tranches).',
           'tab:smc', size=r'\scriptsize')
@@ -471,18 +475,27 @@ def pcm():
     LOAD_TWH = {2035: float(PP.loc['REFRESH_2035', 'load_twh']), 2050: float(PP.loc['REFRESH_2050', 'load_twh'])}
     S['label'] = S.scenario.map(lab)
     S['ens_gwh'] = S.ens_mwh / 1000
+    # congestion effect on total unused zero-cost energy: the VRE/hydro split is not unique (degenerate LP), the total is
+    S['avail_all_twh'] = S.profile_available_twh + S.hydro_twh + S.hydro_spill_twh
+    cp_unused = S[S.scenario.str.endswith('copperplate')].set_index('year').unused_renewable_twh
+    S['cong_curt_pct'] = 100 * (S.unused_renewable_twh - S.year.map(cp_unused)) / S.avail_all_twh
+    S['unused_pct'] = 100 * S.unused_renewable_twh / S.avail_all_twh
     table('pcm', S, [('label', 'Scenario', None), ('production_mbrl_yr', r'Production $\downarrow$', 1),
-                     ('ens_gwh', r'Unserved GWh $\downarrow$', 1), ('unused_renewable_twh', r'Unused RE TWh $\downarrow$', 2),
+                     ('ens_gwh', r'Unserved GWh $\downarrow$', 1), ('unused_renewable_twh', r'Unused TWh $\downarrow$', 2),
+                     ('unused_pct', r'Unused \% $\downarrow$', 1), ('cong_curt_pct', r'Cong. curt. \% $\downarrow$', 2),
                      ('system_cost_mbrl_yr', r'System cost $\downarrow$', 0),
                      ('congestion_cost_vs_copperplate_mbrl_yr', r'Congestion $\downarrow$', 0),
                      ('flowgate_rows_used', 'Rows', 0)],
           r'Network-constrained 8,760-h production cost (PyPSA, monthly, lazy flowgates on all N-0/N-1 rows). System cost = production '
-          r'+ unserved energy at R\$ 8,327.76/MWh + unused renewable energy (VRE curtailment and unused hydro budget) at R\$ 209.47/MWh.',
+          r'+ unserved energy at R\$ 8,327.76/MWh + unused zero-cost energy (curtailment of profile-based resources and unused hydro budget) '
+          r'at R\$ 209.47/MWh. Unused \%: share of the available profile-based and hydro energy; Cong. curt.: unused energy above the '
+          r'same year without network limits, in the same units.',
           'tab:pcm', size=r'\footnotesize', note=r'Costs in R\$ M/yr; Rows: flowgate rows added by the lazy check.')
     for _, r in S.iterrows():
         k = re.sub('[^A-Za-z]', '', r.scenario.replace('2035', 'a').replace('2050', 'b'))
         num('ens' + k, r.ens_gwh, 1); num('syscost' + k, r.system_cost_mbrl_yr); num('cong' + k, r.congestion_cost_vs_copperplate_mbrl_yr)
         num('unused' + k, r.unused_renewable_twh, 2); num('rows' + k, r.flowgate_rows_used)
+        num('unusedpct' + k, r.unused_pct, 1); num('congcurtpct' + k, r.cong_curt_pct, 2)
         num('enspct' + k, 100 * r.ens_mwh / (LOAD_TWH[int(r.year)] * 1e6), 2)
     B = pd.read_csv(R2 / 'bcr.csv')
     B['bcr_lo'] = B.bcr_full_plan; B['bcr_hi'] = B.bcr_excl_small
@@ -498,7 +511,7 @@ def pcm():
                       ('arr_full_plan_mbrl', r'Cost, full plan (R\$ M/yr)', 1), ('bcr_full_plan', r'BCR $\uparrow$', 1),
                       ('arr_excl_small_mbrl', r'Cost, excl. small needs', 1), ('bcr_excl_small', r'BCR $\uparrow$', 1)],
           r'Benefit-cost ratios (annual benefit / annual revenue requirement at CRF(8\%, 30 yr) + 1.5\% O\&M). BCR $>$ 1 justifies the '
-          r'measure (CAISO/PJM economic criterion). Valuing unused renewable energy $\pm$50\% changes the BCRs by at most '
+          r'measure (CAISO/PJM economic criterion). Valuing unused zero-cost energy $\pm$50\% changes the BCRs by at most '
           + f'{curt_rel:.1f}' + r'\%.',
           'tab:bcr', size=r'\footnotesize')
     base = B[B.sensitivity == 'base'].set_index('measure')

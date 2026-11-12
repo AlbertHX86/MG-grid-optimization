@@ -102,6 +102,8 @@ state-of-charge dynamics; 2050 requires local supply without imports or gas. We 
 generators and storage; custom constraints for the monthly hydro budget, cyclic ramping and the single battery converter).
 The PyPSA model reproduces the saved objectives (\RS\NobjA~M and \RS\NobjB~M) and capacity mixes to within $10^{-12}$
 (relative), and a re-solve of the original code under dry hydrology (\RS\NobjdryA~M and \RS\NobjdryB~M) to the same precision.
+The model's 2035 stage counts capital and fixed O\&M over 2031--2050 but operating cost only over 2031--2035, so the two
+objectives are not comparable; the saved portfolios are kept unchanged, since every later step depends on them.
 The 2035 portfolio sits entirely on the policy floors (1.0~GW central PV, 1.04~GW distributed PV, 0.88~GW biomass, 0.30~GW small hydro);
 the 2050 portfolio adds 12.9~GW central PV, 7.9~GW distributed PV, 2.0~GW wind, 0.4~GW biogas and 5.3~GW of 8-hour batteries
 (Table~\ref{tab:portfolios}). Sensitivity portfolios follow the CAISO/PJM list \citep{course_l9}: load $\pm$6\%, dry and (parametric) wet
@@ -131,9 +133,9 @@ repeated with every new resource scaled by the peak deliverable fraction $d=\min
 hydrology; Method A could remove \NpcsurplusA~MW of perfect capacity and stay at 0.1~day/yr). Without firm imports MG alone would need
 \NpcgapAnameplatenofirmimports~MW more firm capacity. For 2050, Method A again reports an adequate system at nameplate, but Method B, which
 sees the monthly hydro energy budgets, finds unserved energy in every simulated year (\NeueBnormalname~GWh on average,
-P(any shortfall) = \NpanyBnormalname); \NgapBnormalname~MW of firm capacity would bring P(any shortfall) to 0.1. Counting only deliverable
+P(any shortfall) = \NpanyBnormalname); at most \NgapBnormalname~MW of firm capacity would bring P(any shortfall) to 0.1 (the gap search resolves \Ngapres~MW). Counting only deliverable
 capacity raises the Method-A gap to \NpcgapBdeliverableonly~MW, and a dry year leaves \NeueBdryname~GWh unserved (\NeuepctBdryname\% of
-load) even at nameplate, needing \NgapBdryname~MW of firm capacity. Method B's deliverable-only case scales the new resources' output by
+load) even at nameplate, needing at most \NgapBdryname~MW of firm capacity. Method B's deliverable-only case scales the new resources' output by
 $d$ in every hour and so also removes midday energy that is deliverable ($\alpha=\NalphaBSonepeakdelivery$ in S1); its \NeueBnormaldel~GWh
 (normal hydrology) is a loose upper bound, against \Nensbexistinggrid~GWh in the production-cost run that applies the grid hour by hour
 (Section~\ref{sec:pcm}). The 2050 portfolio meets energy on average but has no reserve for
@@ -197,8 +199,8 @@ conservative, tower data are not available; new circuits are on their own struct
 the reference siting (S3, HSN and SSN; Table~\ref{tab:p7}): losing two of the three Itabira~2--Itabira~5 230~kV circuits overloads the third
 ($\alpha=\Npsevenminrefex$). The phase-3 plan, sized for P1, leaves this need ($\alpha=\Npsevenminrefplan$). Repeating the phase-3 procedure on
 the P7 rows adds \Npremn{} new 230~kV circuits: \Npremnameone{} (\Npremkmone~km routed, \RS\Npremcapexone~M; the surviving circuit needs
-+\Npremincone\%) and then \Npremnametwo{} (\RS\Npremcapextwo~M), because with the first circuit in place losing both existing
-\Npremnametwo{} circuits overloads the plan's new one. Together they cost \RS\Npremcapex~M (\RS\Npremarr~M/yr), raise the reference-siting
++\Npremincone\%) and then \Npremnametwo{} (\RS\Npremcapextwo~M): once the first circuit is in, the next binding P7 row is the plan's new
+\Npremnametwo{} circuit for the loss of both existing ones. Together they cost \RS\Npremcapex~M (\RS\Npremarr~M/yr), raise the reference-siting
 capex to \RS\Npremplancapex~M and lower the full-plan BCR to \Nprembcr{}; with them every condition meets P1 and P7
 ($\alpha\ge\Npsevenminrefrem$). With batteries at load P7 never binds first on the existing grid, and the one-bank plan meets P1 and P7
 ($\alpha\ge\Npsevenminbalplan$). For the AC check, PyPSA's Newton--Raphson power flow with the network's injections reproduces the PWF flows (median error \Nacmed~MW, \Nacshare\% of branches within
@@ -247,7 +249,10 @@ load buses pro rata, reservoir hydro to the hydro-plant buses, imports to the bo
 thermal to the thermal buses, and new resources and batteries to their POIs, so the changes balance exactly. Months are solved separately
 with the monthly hydro budgets and month-boundary battery states taken from the annual unconstrained dispatch; flowgates are added lazily
 until no N-0 or N-1 row is violated in any hour. Annual system cost is production cost plus unserved energy at \RS8,327.76/MWh
-\citep{ccee2025deficit} plus unused renewable energy (curtailment and unused hydro budget) at the 2025 SE marginal cost, \RS209.47/MWh (the model's import price).
+\citep{ccee2025deficit} plus unused zero-cost energy (curtailment of the profile-based resources as defined in the model, and unused hydro budget) at the 2025
+SE marginal cost, \RS209.47/MWh (the model's import price). Congestion curtailment is the unused zero-cost energy above the same year's run
+without network limits, as a share of the available profile-based and hydro energy (the split between the two is not unique); the
+plan screened it against 5\%.
 Without flowgates the monthly runs reproduce the annual dispatch (no unserved energy; same imports and production cost).
 
 \input{tables/pcm}
@@ -264,6 +269,12 @@ to \Nensbbessatloadexistinggrid~GWh, again only in \Nbudgetminmonth. Its one-ban
 (\Nfgbalplanrowstwo) and \Nfgbalplanthree{} (\Nfgbalplanrowsthree). Apart from the pre-existing S\~ao Gon\c{c}alo do Par\'a overload, the
 study-condition screen did not flag these elements; they are candidates for an economic-driven addition. The energy-tight month, not the study hours, sets the residual
 need, which is why the production-cost run is part of the assessment.
+
+\paragraph{What drives curtailment?} Not the grid. Without any network limit, \Nunusedbcopperplate~TWh of zero-cost energy
+(\Nunusedpctbcopperplate\% of the available profile-based and hydro energy) goes unused in 2050 because the hourly local-balance rule
+allows no exports; the existing grid adds congestion curtailment of only \Ncongcurtpctbexistinggrid\% (\Ncongcurtpctbwithplan\% with the plan), well below
+the 5\% screen. Unlike NREL's Oregon finding that congestion drives curtailment \citep{nrel2021oregon}, the grid's cost here is
+unserved load, not lost energy, and the curtailed energy is what an export option would sell (next paragraph).
 
 \begin{figure}[htbp]\centering
 \includegraphics[width=0.92\linewidth]{figures/pcm_ens.pdf}
@@ -291,7 +302,10 @@ system cost falls by \RS\Nbenreloc~M/yr.
 BCR \NbcrRfull--\NbcrRexcl. If existing parallel circuits share towers (P7), \Npremn{} more 230~kV circuits (\RS\Npremcapex~M) are
 needed and the full-plan BCR is \Nprembcr.
 \item \textbf{2050 adequacy is energy-limited.} A capacity-only COPT finds no shortfall; the energy-limited simulation finds shortfalls
-in every simulated year and \NeueBdryname~GWh in a dry year, needing \NgapBnormalname--\NgapBdryname~MW of firm capacity.
+in every simulated year and \NeueBdryname~GWh in a dry year, needing up to \NgapBnormalname~MW (normal) and \NgapBdryname~MW (dry) of firm capacity.
+\item \textbf{Curtailment comes from the hourly local-balance rule, not from congestion.} Even without network limits
+\Nunusedbcopperplate~TWh (\Nunusedpctbcopperplate\%) of 2050 zero-cost energy goes unused; congestion adds \Ncongcurtpctbexistinggrid\%
+(below the 5\% screen).
 \item \textbf{The definition of fossil-free matters.} Annual instead of hourly matching lowers 2050 cost by \NmatchabsAone\%, if exports
 can be delivered.
 \end{enumerate}
