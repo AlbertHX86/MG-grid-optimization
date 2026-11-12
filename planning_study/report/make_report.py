@@ -20,6 +20,12 @@ R1 = ROOT / 'hosting_capacity' / 'results'
 R2 = PS / 'results'
 TAB = HERE / 'tables'; FIG = HERE / 'figures'
 TAB.mkdir(exist_ok=True); FIG.mkdir(exist_ok=True)
+PDFMETA = {'CreationDate': None}       # reproducible figure files (no build timestamp)
+FS, SUFFIX = 1.0, ''                    # figure font scale and file suffix (the poster redraws at FS = 1.4)
+
+
+def fs(x):
+    return x * FS
 
 # categorical slots 1-4 of the validated reference palette (light mode), fixed order
 C1, C2, C3, C4 = '#2a78d6', '#eb6834', '#1baf7a', '#eda100'
@@ -223,11 +229,11 @@ def figures_deliverability(chk, poi):
     y = np.arange(len(p))
     ax.barh(y, p.hc_P_prorata_mw / 1000, height=0.62, color=C1, edgecolor='white', linewidth=0.8)
     for yi, v in zip(y, p.hc_P_prorata_mw / 1000):
-        ax.text(v + 0.08, yi, f'{v:.1f}', va='center', fontsize=6.5, color=INK2)
-    ax.set_yticks(y); ax.set_yticklabels(lab, fontsize=6.5)
-    ax.set_xlabel('Hosting capacity (GW), pro-rata absorption, N-0 and N-1, 5% circle')
+        ax.text(v + 0.08, yi, f'{v:.1f}', va='center', fontsize=fs(6.5), color=INK2)
+    ax.set_yticks(y); ax.set_yticklabels(lab, fontsize=fs(6.5))
+    ax.set_xlabel('Hosting capacity (GW), pro-rata absorption, N-0 and N-1, 5% circle' if FS == 1 else 'Hosting capacity (GW)')
     ax.grid(axis='y', visible=False)
-    fig.tight_layout(); fig.savefig(FIG / 'poi_hosting.pdf'); plt.close(fig)
+    fig.tight_layout(); fig.savefig(FIG / f'poi_hosting{SUFFIX}.pdf', metadata=PDFMETA); plt.close(fig)
     si = chk[(chk['mode'] == 'circle') & chk.main & chk.condition.isin(ORDER) & (chk.year == 2050)]
     fig, ax = plt.subplots(figsize=(6.2, 2.9))
     sits = [('reference', 'Reference siting', C1), ('reference_bess_at_load', 'BESS at load buses', C2),
@@ -237,13 +243,13 @@ def figures_deliverability(chk, poi):
         v = [float(si[(si.siting == s) & (si.condition == cnd)].alpha.iloc[0]) for cnd in ORDER]
         ax.bar(x + (i - 1.5) * w, v, width=w * 0.9, color=c, label=l, edgecolor='white', linewidth=0.6)
         for xi, vi in zip(x + (i - 1.5) * w, v):
-            ax.text(xi, vi + 0.03, f'{vi:.2f}', ha='center', fontsize=5.6, color=INK2, rotation=90)
-    ax.axhline(1.0, color=INK, lw=0.9, ls='--'); ax.text(len(ORDER) - 0.45, 1.03, r'$\alpha$ = 1', fontsize=7, color=INK)
-    ax.set_xticks(x); ax.set_xticklabels(['Off-peak S1', 'Off-peak S2', 'Peak S3', 'Peak HSN', 'Peak SSN'], fontsize=7)
+            ax.text(xi, vi + 0.03, f'{vi:.2f}', ha='center', fontsize=fs(5.6), color=INK2, rotation=90)
+    ax.axhline(1.0, color=INK, lw=0.9, ls='--'); ax.text(len(ORDER) - 0.45, 1.03, r'$\alpha$ = 1', fontsize=fs(7), color=INK)
+    ax.set_xticks(x); ax.set_xticklabels(['Off-peak S1', 'Off-peak S2', 'Peak S3', 'Peak HSN', 'Peak SSN'], fontsize=fs(7))
     ax.set_ylabel(r'$\alpha$ (higher is better)'); ax.set_ylim(0, 2.25)
-    ax.legend(ncol=4, fontsize=6.6, frameon=False, loc='upper left', bbox_to_anchor=(0, 1.16))
+    ax.legend(ncol=4 if FS == 1 else 2, fontsize=fs(6.6), frameon=False, loc='upper left', bbox_to_anchor=(0, 1.16 if FS == 1 else 1.32))
     ax.grid(axis='x', visible=False)
-    fig.tight_layout(); fig.savefig(FIG / 'alpha_2050.pdf'); plt.close(fig)
+    fig.tight_layout(); fig.savefig(FIG / f'alpha_2050{SUFFIX}.pdf', metadata=PDFMETA); plt.close(fig)
 
 
 def portfolio():
@@ -348,6 +354,9 @@ def adequacy():
     assert (b[b.year == 2035].EUE_MWh == 0).all() and (a[a.year == 2035].query('counting != "nameplate, no firm imports"').EUE_MWh == 0).all()  # text: 2035 no unserved energy
     a35 = a[(a.year == 2035) & (a.counting == 'nameplate')].iloc[0]
     num('pcsurplusA', -a35.firm_capacity_gap_mw)
+    a50 = a[(a.year == 2050) & (a.counting == 'nameplate')].iloc[0]
+    assert a50.firm_capacity_gap_mw < 0
+    num('pcsurplusB', -a50.firm_capacity_gap_mw)
 
 
 def mitigation():
@@ -375,6 +384,7 @@ def mitigation():
         num('capexhigh' + k, T.loc[s, 'capex_high_mbrl']); num('capexexcl' + k, T.loc[s, 'capex_excluding_small_line_needs_mbrl'])
         num('arr' + k, T.loc[s, 'annual_revenue_requirement_mbrl'], 1); num('arrexcl' + k, T.loc[s, 'annual_revenue_requirement_excl_small_mbrl'], 1)
         num('groups' + k, T.loc[s, 'groups'])
+        num('groupsexcl' + k, T.loc[s, 'groups'] - T.loc[s, 'small_line_needs'])
     r = pre.iloc[0]
     num('prebase', r.base_overload_mw, 1); num('preadd', r.portfolio_adds_mw, 1); num('prebanks', r.banks_with_portfolio)
     num('precapexinc', r.capex_attributable_increment_mbrl, 1); num('precapexbase', r.capex_base_mbrl, 1)
@@ -535,22 +545,58 @@ def pcm():
     top = FG[FG.scenario == '2050_bess_at_load_with_plan'].element.value_counts()
     for i, tag in enumerate(['one', 'two', 'three']):
         num(f'fgbalplan{tag}', pretty(top.index[i])); num(f'fgbalplanrows{tag}', int(top.iloc[i]))
+    return M
+
+
+def figure_pcm(M):
     fig, ax = plt.subplots(figsize=(6.2, 2.6))
     sc = [('2050_existing_grid', 'Reference siting, existing grid', C1, '-'), ('2050_with_plan', 'Reference siting, grid + plan', C1, '--'),
           ('2050_bess_at_load_existing_grid', 'BESS at load, existing grid', C2, '-'), ('2050_bess_at_load_with_plan', 'BESS at load, grid + plan', C2, '--')]
     for s, l, c, ls in sc:
         mm = M[M.scenario == s]
         if len(mm):
-            ax.plot(mm.month, mm.ens_gwh, color=c, ls=ls, lw=2, marker='o', ms=4, label=l)
+            ax.plot(mm.month, mm.ens_gwh, color=c, ls=ls, lw=2, marker='o', ms=fs(4), label=l)
     ax.set_xticks(range(1, 13)); ax.set_xticklabels(['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'])
     ax.set_ylabel('Unserved energy (GWh)\n(lower is better)'); ax.set_xlabel('Month (2050)')
-    ax.legend(fontsize=6.6, frameon=False, ncol=2, loc='lower left', bbox_to_anchor=(0, 1.0))
-    fig.tight_layout(); fig.savefig(FIG / 'pcm_ens.pdf'); plt.close(fig)
+    ax.legend(fontsize=fs(6.6), frameon=False, ncol=2, loc='lower left', bbox_to_anchor=(0, 1.0))
+    fig.tight_layout(); fig.savefig(FIG / f'pcm_ens{SUFFIX}.pdf', metadata=PDFMETA); plt.close(fig)
+
+
+def poster_numbers():
+    """Numbers the poster states that the report text types (portfolio sizes, northern BESS, 2035 alpha range, voltage screen)."""
+    d = pd.read_csv(R2 / 'portfolio_pypsa.csv')
+    techs = ['solar_central', 'solar_distributed', 'bio', 'small_hydro', 'wind_site', 'biogas', 'bess']
+    for _, r in d[d.case.str.startswith('REFRESH')].iterrows():
+        for t in techs:
+            num(f"cap{r.year}{t.replace('_', '')}", max(0.0, r[f'cap_{t}_gw']), 2)
+        num(f'captotal{r.year}', sum(max(0.0, r[f'cap_{t}_gw']) for t in techs), 1)
+        num(f'load{r.year}', r.load_twh, 1); num(f'peak{r.year}', r.peak_load_gw, 1)
+    sit = pd.read_csv(R1 / 'reference_siting_2050.csv')
+    bess = sit[sit.tech == 'bess']
+    north = bess[bess.area.isin(['Montes Claros', 'Janauba'])].new_capacity_mw.sum() / 1000
+    b50 = d[d.case == 'REFRESH_2050'].iloc[0]
+    assert abs(bess.new_capacity_mw.sum() / 1000 - b50.cap_bess_gw) < 1e-3       # siting places the whole BESS fleet
+    num('bessnorth', north, 1)
+    a35 = [float(NUM[k]) for k in ('alphaASonepeakdelivery', 'alphaAStwoprecurtailment', 'alphaASthreeeveningnonsolar',
+                                   'alphaAHSNcaiso', 'alphaASSNcaiso')]
+    assert float(NUM['alphaASthreeeveningnonsolar']) == min(a35) and float(NUM['alphaASonepeakdelivery']) == max(a35)
+    v = pd.read_csv(R2 / 'ac_voltage_screen.csv')
+    ref35 = v[(v.year == 2035) & (v.siting == 'reference')]; ref50 = v[(v.year == 2050) & (v.siting == 'reference')]
+    bl50 = v[(v.year == 2050) & (v.siting == 'reference_bess_at_load')]
+    assert v.converged.all() and ref35.new_below_limit.max() == 0 and ref50.new_above_limit.max() == 0
+    num('acnewhighA', ref35.new_above_limit.max()); num('acnewlowB', ref50.new_below_limit.max())
+    num('acnewhighBL', bl50.new_above_limit.max())
+    B = pd.read_csv(R2 / 'bcr.csv'); B = B[B.measure == 'reinforcement plan, reference siting']
+    assert B.loc[B.bcr_full_plan.idxmin(), 'sensitivity'] == 'VOLL -50%'    # poster: 'at VOLL -50% the full plan keeps BCR'
 
 
 def main():
     chk, poi = deliverability(); figures_deliverability(chk, poi)
-    portfolio(); adequacy(); mitigation(); regional(); p7_ac(); pcm()
+    portfolio(); adequacy(); mitigation(); regional(); p7_ac(); M = pcm(); figure_pcm(M); poster_numbers()
+    global FS, SUFFIX
+    FS, SUFFIX = 1.4, '_poster'
+    with plt.rc_context({'font.size': fs(8.5)}):
+        figures_deliverability(chk, poi); figure_pcm(M)
     (HERE / 'numbers.tex').write_text('\n'.join(rf'\newcommand{{\N{k}}}{{{v}}}' for k, v in sorted(NUM.items())) + '\n')
     print(len(NUM), 'numbers;', len(list(TAB.glob('*.tex'))), 'tables;', len(list(FIG.glob('*.pdf'))), 'figures')
 
