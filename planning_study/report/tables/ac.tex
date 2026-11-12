@@ -1,0 +1,29 @@
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\caption{AC voltage screen (PyPSA Newton--Raphson, N-0, MG buses $\ge$230 kV, bus-specific normal limits of the PWF). The base case already has 5 buses above their limit. Generator reactive limits are not enforced.}
+\label{tab:ac}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{rllrrrrrl}
+\toprule
+Year & Siting & Condition & $V_{min}$ (pu) & $V_{max}$ (pu) & New low $\downarrow$ & New high $\downarrow$ & Min. margin (pu) $\uparrow$ & Tightest bus \\
+\midrule
+2035 & Reference & S1 midday (LP-used) & 0.878 & 1.091 & 0 & 2 & -0.006 & Itabira 5 230 kV \\
+2035 & Reference & S2 midday (pre-curt.) & 0.878 & 1.091 & 0 & 2 & -0.006 & Itabira 5 230 kV \\
+2035 & Reference & S3 evening (BESS) & 0.878 & 1.089 & 0 & 0 & -0.005 & Itabira 5 230 kV \\
+2035 & Reference & HSN (CAISO) & 0.878 & 1.089 & 0 & 0 & -0.004 & Itabira 5 230 kV \\
+2035 & Reference & SSN (CAISO) & 0.878 & 1.089 & 0 & 0 & -0.005 & Itabira 5 230 kV \\
+2050 & BESS at load & S1 midday (LP-used) & 0.879 & 1.081 & 0 & 0 & 0.000 & Santos Dumont 2 345 kV \\
+2050 & BESS at load & S2 midday (pre-curt.) & 0.879 & 1.079 & 0 & 0 & 0.001 & Santos Dumont 2 345 kV \\
+2050 & BESS at load & S3 evening (BESS) & 0.879 & 1.100 & 0 & 26 & -0.015 & Itabira 5 230 kV \\
+2050 & BESS at load & HSN (CAISO) & 0.879 & 1.101 & 0 & 27 & -0.015 & Itabira 5 230 kV \\
+2050 & BESS at load & SSN (CAISO) & 0.879 & 1.085 & 0 & 0 & -0.003 & Santos Dumont 2 345 kV \\
+2050 & Reference & S1 midday (LP-used) & 0.879 & 1.078 & 0 & 0 & 0.003 & Santos Dumont 2 345 kV \\
+2050 & Reference & S2 midday (pre-curt.) & 0.879 & 1.078 & 0 & 0 & 0.003 & Santos Dumont 2 345 kV \\
+2050 & Reference & S3 evening (BESS) & 0.879 & 1.073 & 1 & 0 & -0.007 & CVERED 345 kV \\
+2050 & Reference & HSN (CAISO) & 0.879 & 1.073 & 1 & 0 & -0.002 & CVERED 345 kV \\
+2050 & Reference & SSN (CAISO) & 0.879 & 1.075 & 0 & 0 & 0.008 & Aurora 3 230 kV \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}

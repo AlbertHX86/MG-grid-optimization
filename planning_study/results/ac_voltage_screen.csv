@@ -1,0 +1,16 @@
+year,siting,condition,converged,min_vm_mg_230plus,max_vm_mg_230plus,buses_below_limit,buses_above_limit,base_below_limit,base_above_limit,new_below_limit,new_above_limit,min_margin_pu,tightest_bus,max_dv_vs_base_pu
+2035,reference,S1_peak_delivery,True,0.877965,1.090805,0,7,0,5,0,2,-0.006062,ITABI5-MG230,0.003473
+2035,reference,S2_pre_curtailment,True,0.877978,1.090843,0,7,0,5,0,2,-0.006106,ITABI5-MG230,0.003541
+2035,reference,S3_evening_nonsolar,True,0.877743,1.089357,0,5,0,5,0,0,-0.004584,ITABI5-MG230,0.001892
+2035,reference,HSN_caiso,True,0.877659,1.088979,0,5,0,5,0,0,-0.004197,ITABI5-MG230,0.001767
+2035,reference,SSN_caiso,True,0.877779,1.089288,0,5,0,5,0,0,-0.004584,ITABI5-MG230,0.001613
+2050,reference,S1_peak_delivery,True,0.878772,1.077516,0,0,0,5,0,0,0.003157,SDUMO2-MG345,0.014660
+2050,reference,S2_pre_curtailment,True,0.879136,1.077954,0,0,0,5,0,0,0.003381,SDUMO2-MG345,0.019918
+2050,reference,S3_evening_nonsolar,True,0.878737,1.072870,1,0,0,5,1,0,-0.006714,CVERED-MG345,0.051632
+2050,reference,HSN_caiso,True,0.878697,1.073294,1,0,0,5,1,0,-0.002440,CVERED-MG345,0.043859
+2050,reference,SSN_caiso,True,0.879353,1.075138,0,0,0,5,0,0,0.007923,AUROR3-MG230,0.028283
+2050,reference_bess_at_load,S1_peak_delivery,True,0.878724,1.080584,0,0,0,5,0,0,0.000316,SDUMO2-MG345,0.010898
+2050,reference_bess_at_load,S2_pre_curtailment,True,0.879092,1.079079,0,0,0,5,0,0,0.000598,SDUMO2-MG345,0.016015
+2050,reference_bess_at_load,S3_evening_nonsolar,True,0.879230,1.099627,0,31,0,5,0,26,-0.014525,ITABI5-MG230,0.016759
+2050,reference_bess_at_load,HSN_caiso,True,0.879201,1.100508,0,32,0,5,0,27,-0.015314,ITABI5-MG230,0.017548
+2050,reference_bess_at_load,SSN_caiso,True,0.879411,1.084579,0,3,0,5,0,0,-0.002840,SDUMO2-MG345,0.011129
