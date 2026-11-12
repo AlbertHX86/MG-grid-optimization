@@ -40,10 +40,18 @@ class Rows:
 
 
 class Network:
-    def __init__(self, inputs: Path = INPUTS):
+    def __init__(self, inputs: Path = INPUTS, extra: pd.DataFrame | None = None):
+        """extra: optional branches (same columns as the PWF branch table, `p_from_mw` ignored)
+        appended to model reinforcements. Base flows stay anchored on the AC solution: the
+        original branches keep F_ac plus the DC redistribution caused by the new branches, and
+        the new branches carry their DC share, so every bus injection is unchanged."""
         B = pd.read_csv(inputs / 'pwf_2035_buses.csv')
         L = pd.read_csv(inputs / 'pwf_2035_branches.csv')
         assert len(B) == 1489 and len(L) == 1890 and B.id.is_unique
+        self.m_base = len(L)
+        if extra is not None and len(extra):
+            base = Network(inputs)
+            L = pd.concat([L, extra[L.columns]], ignore_index=True)
         self.B, self.L = B, L
         self.n, self.m = len(B), len(L)
         self.bus_ids = B.id.to_numpy(int)
@@ -70,7 +78,14 @@ class Network:
         Binv = np.zeros((self.n, self.n))
         Binv[np.ix_(free, free)] = np.linalg.inv(Bbus[np.ix_(free, free)])
         self.PTDF = (self.w[:, None] * A) @ Binv        # flow per MW injected at bus, withdrawn at REF_BUS
+        if self.m > self.m_base:
+            p0 = base.p_implied
+            f_old = base.PTDF @ p0
+            f_new = self.PTDF @ p0
+            self.F = np.r_[base.F + (f_new[:self.m_base] - f_old), f_new[self.m_base:]]
         self.p_implied = A.T @ self.F                  # net injection implied by AC branch flows
+        if self.m > self.m_base:
+            assert np.allclose(self.p_implied, base.p_implied, atol=1e-6)
         self._build_sets()
 
     # ------------------------------------------------------------------ sets
