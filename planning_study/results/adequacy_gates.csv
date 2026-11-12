@@ -1,0 +1,11 @@
+gate,ok,detail
+2035 COPT with zero EFOR = deterministic short hours,True,LOLH 0 vs 0 short hours
+2050 COPT with zero EFOR = deterministic short hours,True,LOLH 0 vs 0 short hours
+2035 dry no-outage EUE = custom LP fixed-case ENS,True,PyPSA 0.0 MWh vs custom LP 0.0 MWh
+2035 dry SMC with zero EFOR = no-outage dispatch,True,0.0 vs 0.0 MWh
+2035 normal no-outage dispatch has zero shed,True,EUE 0.0000 MWh
+2035 normal SMC with zero EFOR = no-outage dispatch,True,0.0 vs 0.0 MWh
+2050 dry no-outage EUE = custom LP fixed-case ENS,True,PyPSA 2612405.1 MWh vs custom LP 2612405.1 MWh
+2050 dry SMC with zero EFOR = no-outage dispatch,True,2612405.1 vs 2612405.1 MWh
+2050 normal no-outage dispatch has zero shed,True,EUE 0.0000 MWh
+2050 normal SMC with zero EFOR = no-outage dispatch,True,0.0 vs 0.0 MWh
