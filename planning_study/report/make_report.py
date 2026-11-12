@@ -427,7 +427,7 @@ def p7_ac():
                     ('ex', r'P1+P7 $\uparrow$', 2), ('plan', r'Plan $\uparrow$', 2), ('rem', r'Plan + remedy $\uparrow$', 2),
                     ('bind', 'Binding P7 element (existing grid)', None)],
           r'NERC TPL P7 check (2050), $\alpha$ by network. P1: existing grid, P1 rows only; P1+P7: existing grid with P7 rows; '
-          r'Plan: verified phase-3 plan (sized for P1), P1+P7; Plan + remedy: with the P7 remedy circuits (--- = none needed). '
+          r'Plan: verified reinforcement plan of Section~\ref{sec:mitigation} (sized for P1), P1+P7; Plan + remedy: with the P7 remedy circuits (--- = none needed). '
           r'Every pair of existing parallel circuits on one corridor is assumed to share a structure (conservative); new circuits '
           r'are on their own structures. 2035 stays deliverable with P7 ($\alpha\ge' + f'{lo35:.1f}' + r'$ on P7 rows).', 'tab:p7', size=r'\scriptsize')
     rem = pd.read_csv(R2 / 'contingency_p7_remedy.csv')

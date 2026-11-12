@@ -194,10 +194,10 @@ zero through the pre-existing overload; the 2050 sensitivity portfolios with mor
 \caption{2050 deliverability by study condition and siting (main case). Values below the dashed line need reinforcement.}\label{fig:alpha}
 \end{figure}
 
-\paragraph{P7 and AC checks.} Treating every pair of existing parallel circuits on one corridor as a common structure (\Npairs{} pairs;
+\paragraph{P7 and AC checks (3e, 3d).} Treating every pair of existing parallel circuits on one corridor as a common structure (\Npairs{} pairs;
 conservative, tower data are not available; new circuits are on their own structures), P7 binds before P1 in the three 2050 peak cases of
 the reference siting (S3, HSN and SSN; Table~\ref{tab:p7}): losing two of the three Itabira~2--Itabira~5 230~kV circuits overloads the third
-($\alpha=\Npsevenminrefex$). The phase-3 plan, sized for P1, leaves this need ($\alpha=\Npsevenminrefplan$). Repeating the phase-3 procedure on
+($\alpha=\Npsevenminrefex$). The reinforcement plan of Section~\ref{sec:mitigation}, sized for P1, leaves this need ($\alpha=\Npsevenminrefplan$). Repeating the same procedure on
 the P7 rows adds \Npremn{} new 230~kV circuits: \Npremnameone{} (\Npremkmone~km routed, \RS\Npremcapexone~M; the surviving circuit needs
 +\Npremincone\%) and then \Npremnametwo{} (\RS\Npremcapextwo~M): once the first circuit is in, the next binding P7 row is the plan's new
 \Npremnametwo{} circuit for the loss of both existing ones. Together they cost \RS\Npremcapex~M (\RS\Npremarr~M/yr), raise the reference-siting
@@ -251,8 +251,8 @@ with the monthly hydro budgets and month-boundary battery states taken from the 
 until no N-0 or N-1 row is violated in any hour. Annual system cost is production cost plus unserved energy at \RS8,327.76/MWh
 \citep{ccee2025deficit} plus unused zero-cost energy (curtailment of the profile-based resources as defined in the model, and unused hydro budget) at the 2025
 SE marginal cost, \RS209.47/MWh (the model's import price). Congestion curtailment is the unused zero-cost energy above the same year's run
-without network limits, as a share of the available profile-based and hydro energy (the split between the two is not unique); the
-plan screened it against 5\%.
+without network limits, as a share of the available profile-based and hydro energy (the split between the two is not unique); we
+screen it against a 5\% threshold (a study choice).
 Without flowgates the monthly runs reproduce the annual dispatch (no unserved energy; same imports and production cost).
 
 \input{tables/pcm}
@@ -310,8 +310,8 @@ in every simulated year and \NeueBdryname~GWh in a dry year, needing up to \Ngap
 can be delivered.
 \end{enumerate}
 
-\paragraph{Limitations.} One network snapshot (evening) and one weather year; the 2050 network is the 2035 topology; DC flows except for
-the N-0 AC voltage screen, which does not enforce generator reactive limits; hydro unit sizes are a proxy; reconductoring is modelled as a rating increase with unchanged
+\paragraph{Limitations.} One network snapshot (evening) and one weather year; the 2050 network is the 2035 topology; DC flows except for the N-0 AC voltage screen, which covers the existing grid only and does not enforce generator reactive
+limits; hydro unit sizes are a proxy; reconductoring is modelled as a rating increase with unchanged
 impedance and new circuits and banks as added parallel elements; P7 assumes that existing parallel circuits share structures; the
 production-cost benefits are computed for the P1 plan and held at their 2050 value over the asset life.
 
