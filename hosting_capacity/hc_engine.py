@@ -144,6 +144,15 @@ class Network:
             sel = B.boundary.to_numpy() & (self.p_implied > 1.0)
             w = np.where(sel, self.p_implied, 0.0)
             label = 'Displace boundary inflows (BA/GO equivalents + Estreito HVDC infeed)'
+        elif case == 'P_prorata':
+            # CAISO deliverability convention (Lecture 11): all other online generation is
+            # scaled down in proportion to its output. Read with the SIN as the control area:
+            # MG hydro/thermal (A1 set) plus the boundary equivalents that inject (A2 set).
+            a1 = ((B.state == MG_STATE) & B.gen_type.isin([3, 5, 7]) & (B.pg > 0)).to_numpy()
+            a2 = B.boundary.to_numpy() & (self.p_implied > 1.0)
+            assert not (a1 & a2).any()
+            w = np.where(a1, B.pg, 0.0) + np.where(a2, self.p_implied, 0.0)
+            label = 'Pro rata: all other online generation scaled down (MG hydro/thermal + boundary inflows)'
         elif case == 'B_export':
             # Extra outflow at boundary equivalents that currently withdraw (SP/RJ/ES side).
             sel = B.boundary.to_numpy() & (self.p_implied < -1.0)
@@ -160,7 +169,7 @@ class Network:
         else:
             raise ValueError(case)
         w = np.asarray(w, float)
-        headroom = float(w.sum()) if case in ('A1_mg_backdown', 'A2_displace_inflow') else np.inf
+        headroom = float(w.sum()) if case in ('A1_mg_backdown', 'A2_displace_inflow', 'P_prorata') else np.inf
         return w / w.sum(), headroom, label
 
     def load_weights(self) -> np.ndarray:
@@ -185,28 +194,62 @@ class Network:
             lim.append(self.emrate[M][ee]); elem.append(M[ee]); cont.append(K[kk])
         return Rows(*(np.concatenate(a) for a in (f0, g, lim, elem, cont)))
 
-    @staticmethod
-    def max_scale(r: Rows, dfax_cut: float, total: float = 1.0, relieved=frozenset()):
-        """Largest s >= 0 with all rows feasible for flows f0 + s*g.
+    def unit_dfax(self, units: np.ndarray, sink: np.ndarray) -> np.ndarray:
+        """Distribution factors of each study unit on every row built by `rows()`.
 
-        Rows whose base flow already exceeds the limit may not get worse, but only when the
-        pattern's distribution factor |g|/total >= dfax_cut (pre-existing problems with a tiny
-        contribution are not attributed to the new resources). `relieved` = monitored branches
-        treated as upgraded (their rows are dropped). Returns (s_max, row index or -1).
+        units: (n x U) injection patterns, each summing to 1 (a POI is a unit vector; an
+        aggregate such as distributed PV is a load-weighted pattern). sink: (n,) withdrawal
+        weights summing to 1. Row order matches `rows(n1=True)`: N-0 rows, then N-1 rows with
+        outage-transfer factors D_l + LODF_lk * D_k. Returns (rows x U), MW per MW of unit output.
         """
-        pre = np.abs(r.f0) > r.lim + 1e-6
-        dfax = np.abs(r.g) / max(total, 1e-12)
-        active = ~(pre & (dfax < dfax_cut))
-        if relieved:
-            active &= ~np.isin(r.elem, list(relieved))
-        # An existing overload may not grow in its own direction; the opposite direction
-        # keeps the normal limit (a relieved row may not overshoot past -lim).
+        M, K = self.monitored, self.contingencies
+        G = self.PTDF @ (units - sink[:, None])
+        D0, Dk = G[M], G[K]
+        ee, kk = np.nonzero(~self.self_mask)
+        return np.vstack([D0, D0[ee] + self.LODF[ee, kk][:, None] * Dk[kk]])
+
+    @staticmethod
+    def circle(D: np.ndarray, P: np.ndarray, lim: np.ndarray, thr: float = 0.05):
+        """CAISO 5% circle (Lecture 11): a unit is in a facility's circle when its DFAX >= thr or
+        its flow impact at study output |DFAX * P| >= thr * facility rating. Units with no study
+        output (|P| <= 1 MW) cannot be in any circle. Returns (row_active, membership)."""
+        absD = np.abs(D)
+        on = np.abs(P)[None, :] > 1.0
+        member = on & ((absD >= thr) | (absD * np.abs(P)[None, :] >= thr * lim[:, None]))
+        return member.any(1), member
+
+    @staticmethod
+    def row_caps(r: Rows) -> np.ndarray:
+        """Per-row largest scale s >= 0 before the row violates (inf if it never does).
+        An existing overload may not grow in its own direction; the opposite direction
+        keeps the normal limit (a relieved row may not overshoot past -lim)."""
         hi = np.maximum(r.lim, r.f0)
         lo = np.maximum(r.lim, -r.f0)
         with np.errstate(divide='ignore', invalid='ignore'):
             up = np.where(r.g > 1e-12, (hi - r.f0) / r.g, np.inf)
             dn = np.where(r.g < -1e-12, (lo + r.f0) / (-r.g), np.inf)
-        cap = np.where(active, np.minimum(up, dn), np.inf)
+        return np.minimum(up, dn)
+
+    @staticmethod
+    def max_scale(r: Rows, dfax_cut: float, total: float = 1.0, relieved=frozenset(), active=None):
+        """Largest s >= 0 with all rows feasible for flows f0 + s*g.
+
+        Rows whose base flow already exceeds the limit may not get worse. Which rows are tested:
+        * `active` given (5% circle): only those rows;
+        * otherwise the PR #4 rule: pre-existing violations are skipped when the pattern's
+          aggregate distribution factor |g|/total < dfax_cut.
+        `relieved` = monitored branches treated as upgraded (their rows are dropped).
+        Returns (s_max, row index or -1).
+        """
+        pre = np.abs(r.f0) > r.lim + 1e-6
+        if active is None:
+            dfax = np.abs(r.g) / max(total, 1e-12)
+            active = ~(pre & (dfax < dfax_cut))
+        else:
+            active = np.asarray(active, bool).copy()
+        if relieved:
+            active &= ~np.isin(r.elem, list(relieved))
+        cap = np.where(active, Network.row_caps(r), np.inf)
         # Round before argmin so exact ties (e.g. the legs of one three-winding unit) resolve
         # to the first row instead of to floating-point noise.
         j = int(np.argmin(np.round(cap, 6)))
@@ -219,7 +262,7 @@ class Network:
         nm = self.B.name.to_numpy()
         return {'branch': b, 'from_bus': int(L.f), 'to_bus': int(L.t), 'circuit': int(L.c),
                 'from_name': nm[self.f[b]], 'to_name': nm[self.t[b]], 'kind': L.kind,
-                'kv': float(min(k for k in (self.kv[self.f[b]], self.kv[self.t[b]]) if k != STAR_KV)),
+                'kv': float(min([k for k in (self.kv[self.f[b]], self.kv[self.t[b]]) if k != STAR_KV], default=np.nan)),
                 'rate_mw': float(self.rate[b]), 'emrate_mw': float(self.emrate[b])}
 
     def line_length_km(self, b: int, coords: dict[int, tuple[float, float]]):
@@ -232,8 +275,8 @@ class Network:
             d = 2 * 6371.0 * np.arcsin(np.sqrt(h))
             if d >= 1.0:
                 return float(d), 'geocoded straight line'
-        kvb = min(k for k in (self.kv[self.f[int(b)]], self.kv[self.t[int(b)]]) if k != STAR_KV)
-        per = X_PU_PER_KM.get(int(kvb))
+        kvb = min([k for k in (self.kv[self.f[int(b)]], self.kv[self.t[int(b)]]) if k != STAR_KV], default=np.nan)
+        per = X_PU_PER_KM.get(int(kvb)) if np.isfinite(kvb) else None
         if per is None or L.x <= 0:
             return float('nan'), 'unknown'
         return float(L.x / per), 'estimated from reactance'
