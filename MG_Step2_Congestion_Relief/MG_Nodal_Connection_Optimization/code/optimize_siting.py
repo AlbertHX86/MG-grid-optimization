@@ -86,8 +86,8 @@ def candidate_table(year,portfolio):
         # Prefer three physically distinct eligible substation locations.
         # Several PWF buses share one ONS substation (same coordinates, different kV), so
         # distance alone ties. Break ties deterministically: lowest eligible kV (cheapest
-        # bay/line rates), then bus id. A plain sort_values() is not stable and made the
-        # kept bus depend on the pandas version.
+        # bay/line rates), then bus id. A plain sort_values() is not stable, so the kept bus
+        # among tied rows was left unspecified. (Lowest kV is a modelling choice.)
         opts=(opts.sort_values(['distance_km','pwf_kv','pwf_bus_id'],kind='mergesort')
                   .drop_duplicates('ons_id_subestacao').head(3))
         if opts.empty:raise RuntimeError(f'No PWF crosswalk candidate for {item.area}')

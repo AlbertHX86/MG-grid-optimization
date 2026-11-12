@@ -199,10 +199,13 @@ class Network:
         active = ~(pre & (dfax < dfax_cut))
         if relieved:
             active &= ~np.isin(r.elem, list(relieved))
-        U = np.maximum(r.lim, np.abs(r.f0))
+        # An existing overload may not grow in its own direction; the opposite direction
+        # keeps the normal limit (a relieved row may not overshoot past -lim).
+        hi = np.maximum(r.lim, r.f0)
+        lo = np.maximum(r.lim, -r.f0)
         with np.errstate(divide='ignore', invalid='ignore'):
-            up = np.where(r.g > 1e-12, (U - r.f0) / r.g, np.inf)
-            dn = np.where(r.g < -1e-12, (U + r.f0) / (-r.g), np.inf)
+            up = np.where(r.g > 1e-12, (hi - r.f0) / r.g, np.inf)
+            dn = np.where(r.g < -1e-12, (lo + r.f0) / (-r.g), np.inf)
         cap = np.where(active, np.minimum(up, dn), np.inf)
         # Round before argmin so exact ties (e.g. the legs of one three-winding unit) resolve
         # to the first row instead of to floating-point noise.

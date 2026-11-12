@@ -349,7 +349,9 @@ def md(df, fmt=None):
     fmt = fmt or {}
     cols = list(df.columns)
     head = [f'DFAX {c:.0%}' if isinstance(c, float) else str(c) for c in cols]
-    out = ['| ' + ' | '.join(head) + ' |', '|' + '|'.join('---' if df[c].dtype == object else '---:' for c in cols) + '|']
+    # Right-align numeric columns only (pandas 3 stores text as 'str', not object).
+    out = ['| ' + ' | '.join(head) + ' |',
+           '|' + '|'.join('---:' if pd.api.types.is_numeric_dtype(df[c]) else '---' for c in cols) + '|']
     for _, r in df.iterrows():
         cells = []
         for c in cols:
@@ -458,6 +460,11 @@ def write_results_md(chk, ups, poi, base, facs, info):
         'Ratings are relaxed only; impedances are unchanged.',
         '',
         md(u, {'needed +% ↓': '{:.1f}', 'length km': '{:.0f}'}) if len(u) else '_None needed._',
+        '',
+        'The `+load2050` variants are not shown here; they are in `results/required_upgrades.csv`. They spread the '
+        '2050 load growth pro rata to existing MG load, the same pattern as the retired legacy convention, so Vale do Aço '
+        '230 kV elements (Ipatinga, Timóteo) reappear there. Transformer additions are classed minor at any size; '
+        'see the `needed +%` column.',
         '',
         '## Sensitivity: siting (α ↑)',
         '',

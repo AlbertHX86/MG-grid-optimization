@@ -52,7 +52,12 @@ The project driver is now: **how much new generation can the existing MG grid de
     - Also counting line uprates of ≤25% as minor leaves only the existing-PV export sensitivity major. This rule was added after the first results.
 - **Run** (after restoring the private inputs, see below): `bash run_hosting_capacity.sh`. It runs the regression gate `hosting_capacity/check_engine.py` first.
 
-> **Note (2026-11-11):** `regional_comparison/results/` was regenerated after making the substation/kV tie-break in `candidate_table` deterministic. The connection costs therefore differ from the PDF draft (e.g. 2035 Local-4 R$1,285.10M vs 1,357.88M). The PDF has not been updated. `SHA256SUMS.txt` predates these changes.
+> **Note (2026-11-11):** `regional_comparison/results/` was regenerated after making the substation/kV tie-break in `candidate_table` explicit (lowest eligible kV, then bus id). The connection costs differ from the PDF draft (e.g. 2035 Local-4 R$1,285.10M vs 1,357.88M).
+> - The committed PDF numbers could not be reproduced with the original code on the regeneration machine (R$1,299.77M, pandas 3.1.1).
+>   - The original code's candidate table is identical under pandas 2.3.3, so the pandas version is not the cause.
+>   - The cause of the gap is unknown.
+> - The tie rule then moves 11 of 102 candidate rows to a lower-kV bus at the same substation (Pirapora 2, Marimbondo, Itumbiara).
+> - The PDF, the PNGs in `regional_comparison/figures/` (which have no generator script in this repository) and `SHA256SUMS.txt` predate these changes.
 
 ## Project layout
 
