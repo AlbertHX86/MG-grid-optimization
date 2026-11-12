@@ -3,6 +3,7 @@
 # Needs the private inputs restored (tools/restore_local_inputs.py). Environment: planning_study/requirements.txt;
 # set PYTHON to that interpreter (defaults to python3).
 set -euo pipefail
+trap 'p=$(jobs -p); [ -n "$p" ] && kill $p 2>/dev/null; true' EXIT   # a failed step stops any Method B jobs still running
 cd "$(dirname "$0")/.."
 PY="${PYTHON:-python3}"
 export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1
