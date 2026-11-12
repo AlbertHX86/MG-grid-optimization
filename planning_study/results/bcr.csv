@@ -1,0 +1,16 @@
+measure,sensitivity,annual_benefit_mbrl,arr_full_plan_mbrl,arr_excl_small_mbrl,bcr_full_plan,bcr_excl_small,avoided_plan_arr_mbrl
+"reinforcement plan, reference siting",base,5768.474542,129.734067,27.699431,44.463838,208.252456,
+"reinforcement plan, BESS at load",base,268.487565,4.884679,4.884679,54.965242,54.965242,
+site the planned BESS at load buses (no grid plan),base,5153.491310,0.000000,0.000000,inf,inf,124.849388
+"reinforcement plan, reference siting",unused energy -50%,5731.841171,129.734067,27.699431,44.181465,206.929925,
+"reinforcement plan, BESS at load",unused energy -50%,265.997490,4.884679,4.884679,54.455470,54.455470,
+site the planned BESS at load buses (no grid plan),unused energy -50%,5123.546422,0.000000,0.000000,inf,inf,124.849388
+"reinforcement plan, reference siting",unused energy +50%,5805.107912,129.734067,27.699431,44.746211,209.574988,
+"reinforcement plan, BESS at load",unused energy +50%,270.977639,4.884679,4.884679,55.475015,55.475015,
+site the planned BESS at load buses (no grid plan),unused energy +50%,5183.436199,0.000000,0.000000,inf,inf,124.849388
+"reinforcement plan, reference siting",VOLL -50%,2921.740147,129.734067,27.699431,22.520994,105.480150,
+"reinforcement plan, BESS at load",VOLL -50%,136.942420,4.884679,4.884679,28.035091,28.035091,
+site the planned BESS at load buses (no grid plan),VOLL -50%,2608.277668,0.000000,0.000000,inf,inf,124.849388
+"reinforcement plan, reference siting",VOLL +50%,8615.208937,129.734067,27.699431,66.406682,311.024762,
+"reinforcement plan, BESS at load",VOLL +50%,400.032710,4.884679,4.884679,81.895394,81.895394,
+site the planned BESS at load buses (no grid plan),VOLL +50%,7698.704953,0.000000,0.000000,inf,inf,124.849388
