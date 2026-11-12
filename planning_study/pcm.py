@@ -278,7 +278,8 @@ def run_scenario(name, year, siting, plan_siting, flowgates=True):
                                                                              mth, soc_frac, flowgates=flowgates)
         gp = n.generators_t.p
         shed = gp.filter(like='shed_').sum(1).to_numpy()
-        new_names = [g for g in gens if '@' in g or g == 'dg']
+        # zero-cost profile resources only (as the LP's curtailment); biogas has a fuel cost, so unused biogas is not curtailment
+        new_names = [g for g in gens if ('@' in g or g == 'dg') and not g.startswith('biogas@')]
         avail_new = sum((n.generators.at[g, 'p_nom'] * n.get_switchable_as_dense('Generator', 'p_max_pu')[g]).to_numpy()
                         for g in new_names)
         used_new = sum(gp[g].to_numpy() for g in new_names)
@@ -290,6 +291,8 @@ def run_scenario(name, year, siting, plan_siting, flowgates=True):
         months.append({'month': mth, 'iterations': its, 'flowgate_rows': len(rows), 'violated_after': len(viol),
                        'ens_gwh': float(shed.sum()), 'curt_new_gwh': float((avail_new - used_new).sum()),
                        'curt_existing_gwh': float((avail_ex - used_ex).sum()),
+                       'profile_available_gwh': float((avail_new + avail_ex).sum()),
+                       'biogas_gwh': float(sum(gp[g].sum() for g in gens if g.startswith('biogas@'))),
                        'hydro_gwh': float(gp['hydro'].sum()), 'hydro_budget_gwh': float(inp['energy'][mth]),
                        'imports_gwh': float(gp['imports'].sum()) if 'imports' in gp else 0.0,
                        'production_cost_mbrl': prod, 'worst_preexisting_increase_mw': worst_pre})
@@ -299,7 +302,8 @@ def run_scenario(name, year, siting, plan_siting, flowgates=True):
     M = pd.DataFrame(months)
     tot = {'scenario': name, 'year': year, 'siting': siting, 'plan': plan_siting or 'existing grid', 'flowgates': flowgates,
            'ens_mwh': M.ens_gwh.sum() * 1000, 'curt_new_twh': M.curt_new_gwh.sum() / 1000,
-           'curt_existing_twh': M.curt_existing_gwh.sum() / 1000, 'hydro_twh': M.hydro_gwh.sum() / 1000,
+           'curt_existing_twh': M.curt_existing_gwh.sum() / 1000, 'profile_available_twh': M.profile_available_gwh.sum() / 1000,
+           'biogas_twh': M.biogas_gwh.sum() / 1000, 'hydro_twh': M.hydro_gwh.sum() / 1000,
            'hydro_spill_twh': (M.hydro_budget_gwh - M.hydro_gwh).sum() / 1000, 'imports_twh': M.imports_gwh.sum() / 1000,
            'production_cost_mbrl_yr': M.production_cost_mbrl.sum(),
            'flowgate_rows_used': len(rows_all), 'max_iterations': int(M.iterations.max()),
