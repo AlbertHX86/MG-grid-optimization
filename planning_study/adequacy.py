@@ -265,6 +265,7 @@ class SMC:
         self.n = pp.build(self.c2, self.inp)
         # perfect capacity: always available, unlimited energy, dispatched only before load is shed
         self.n.add('Generator', 'perfect', bus='MG', p_nom=0.0, marginal_cost=0.5)
+        self.shed_names = [g for g in self.n.generators.index if g.startswith('shed_')]
         self.units = fleet(self.inp, self.counted, unit_max)
         if zero_for:
             self.units['efor'] = 0.0
@@ -280,6 +281,23 @@ class SMC:
                 av[k] = (mw[sel] * up[sel]).sum(0) / mw[sel].sum() if sel.any() else np.ones(8760)
             self.av.append(av)
 
+    def _solve_shed(self):
+        """Primal-only solve; returns the hourly unserved energy (GW). n.optimize() would also write every primal
+        and dual result back into the network through PyPSA's bookkeeping, which failed once in an end-to-end
+        rerun (pandas 'cannot reindex on an axis with duplicate labels' in assign_duals, about solve 360 of the
+        2050 normal case; cause not identified: the same seeded sequence had passed all 1,106 solves before).
+        The Monte Carlo needs only the shedding variables, so they are read from the linopy solution; the model
+        is the one n.optimize() builds (same create_model arguments, extra constraints and solver options)."""
+        n = self.n
+        m = n.optimize.create_model(consistency_check=False, include_objective_constant=False)
+        pp.extra(self.c2, self.inp)(n, n.snapshots)
+        status, cond = m.solve(solver_name='highs', output_flag=False)
+        assert status == 'ok', (status, cond)
+        shed = m.variables['Generator-p'].solution.sel(name=self.shed_names).sum('name')
+        shed = shed.transpose('snapshot').to_numpy()
+        n._model = None                           # release the linopy model (memory) before the next sample
+        return shed
+
     def run(self, perfect_mw=0.0, samples=None):
         n = self.n
         n.generators.at['perfect', 'p_nom'] = perfect_mw / 1000.0
@@ -291,11 +309,7 @@ class SMC:
             n.generators_t.p_max_pu['biogas'] = 0.7 * av['biogas']
             n.storage_units_t.p_max_pu['bess'] = av['bess']
             n.storage_units_t.p_min_pu['bess'] = -av['bess']
-            status, _ = n.optimize(solver_name='highs', extra_functionality=pp.extra(self.c2, self.inp),
-                                   include_objective_constant=False, solver_options={'output_flag': False})
-            assert status == 'ok', status
-            shed = n.generators_t.p.filter(like='shed_').sum(axis=1).to_numpy()
-            n._model = None                           # release the linopy model (memory) before the next sample
+            shed = self._solve_shed()
             gc.collect()
             lol = shed > 1e-3                         # an hour counts when more than 1 MW is unserved
             res.append({'sample': s, 'EUE_MWh': float(shed.sum() * 1000), 'LOLH_h': int(lol.sum()),
