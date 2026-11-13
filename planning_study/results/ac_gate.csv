@@ -1,0 +1,2 @@
+shunt_sign,converged,median_err_mw,p95_err_mw,share_within_2mw_2pct,median_v_err_pu,p95_v_err_pu,gate_passed
+1.000000,True,0.002882,9.376062,0.934392,0.000374,0.001794,True

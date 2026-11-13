@@ -1,0 +1,5 @@
+siting,iteration,n_remedy_elements,alpha_P1_P7_min,worst_condition,alpha_P1_P7_S1_peak_delivery,alpha_P1_P7_S2_pre_curtailment,alpha_P1_P7_S3_evening_nonsolar,alpha_P1_P7_HSN_caiso,alpha_P1_P7_SSN_caiso
+reference,0,0,0.216870,S3_evening_nonsolar,1.337149,1.534580,0.216870,0.218985,0.347218
+reference,1,1,0.845430,HSN_caiso,1.720352,1.534598,0.851466,0.845430,1.091238
+reference,2,2,1.000020,HSN_caiso,1.720478,1.534602,1.000716,1.000020,1.091327
+reference_bess_at_load,0,0,1.459527,S3_evening_nonsolar,2.181454,1.543266,1.459527,1.928623,1.890872

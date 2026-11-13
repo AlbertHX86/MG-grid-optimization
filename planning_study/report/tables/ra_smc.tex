@@ -1,0 +1,20 @@
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\caption{Method B (sequential Monte Carlo, energy-limited PyPSA dispatch, 100 outage histories per case; dry = dry-hydrology analogue). EUE in MWh/yr and \% of load; P(any): probability of any shortfall in the year. P(any shortfall) bounds LOLE from below (each year with a shortfall has $\ge$1 loss-of-load day). Firm gap: perfect capacity for P(any shortfall) $\le$ 0.1, by bisection on 0--12,000 MW to 93.75~MW resolution (each value is the upper end of its interval). \enquote{Deliverable only} scales the output of new resources by $d$ in every hour, a loose upper bound in an energy dispatch (midday output is deliverable). $^\dagger$Depends on how energy deficits are spread over hours (rotating 5\% tranches).}
+\label{tab:smc}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{rllrrrrrr}
+\toprule
+Year & Hydrology & Counting & No-outage EUE $\downarrow$ & EUE $\downarrow$ & EUE (\%) $\downarrow$ & P(any) $\downarrow$ & LOLE (d/yr)$^\dagger$ $\downarrow$ & Firm gap (MW) $\downarrow$ \\
+\midrule
+2035 & normal & nameplate & 0 & 0 & 0.000 & 0.00 & 0.0 & 0 \\
+2035 & dry & nameplate & 0 & 0 & 0.000 & 0.00 & 0.0 & 0 \\
+2050 & normal & nameplate & 0 & 43,988 & 0.045 & 1.00 & 28.8 & 94 \\
+2050 & normal & deliverable only & 2,800,356 & 2,863,617 & 2.947 & 1.00 & 126.8 & 1,688 \\
+2050 & dry & nameplate & 2,612,405 & 2,859,322 & 2.942 & 1.00 & 215.3 & 1,594 \\
+2050 & dry & deliverable only & 13,768,440 & 13,969,726 & 14.374 & 1.00 & 365.0 & 3,375 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}

@@ -1,0 +1,4 @@
+definition,objective_mbrl,cap_solar_central_gw,cap_solar_distributed_gw,cap_bio_gw,cap_small_hydro_gw,cap_wind_gw,cap_wind_site_gw,cap_biogas_gw,cap_bess_gw,imports_twh,exports_twh,hours_importing,gas_twh,cost_vs_H0_pct
+H0 hourly local balance (LP),20284.666350,12.918150,7.944000,0.877000,0.671000,-0.000000,2.000000,0.400000,5.290484,0.000000,0.000000,0,0.000000,0.000000
+"H1 hourly balance, exports allowed",17556.959673,14.107329,7.944000,0.877000,0.671000,-0.000000,2.000000,0.400000,4.828425,0.000000,16.004905,0,0.000000,-13.447136
+A1 annual matching (net annual exporter),10415.137283,10.750000,7.944000,0.877000,0.671000,-0.000000,-0.000000,-0.000000,-0.000000,11.987343,16.623281,3974,0.000000,-48.655122

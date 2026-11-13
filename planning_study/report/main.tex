@@ -1,0 +1,339 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=2.1cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{placeins}
+\renewcommand{\topfraction}{0.9}\renewcommand{\bottomfraction}{0.8}\renewcommand{\textfraction}{0.07}\renewcommand{\floatpagefraction}{0.8}
+\setcounter{topnumber}{4}\setcounter{bottomnumber}{3}\setcounter{totalnumber}{6}
+\usepackage{csquotes}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\input{numbers.tex}
+\newcommand{\RS}{R\$}
+
+\title{Can the Existing Minas Gerais Main Grid Deliver the 2035 and 2050 Clean-Energy Portfolios?\\[2pt]
+\large A policy-driven transmission assessment with resource adequacy and production-cost economics}
+\author{Xiao Huang \and Yunhan Huang \and Tianrun Yan \and Siyao Wu\\[2pt]
+\small ENERGY 176/276 Electric System Planning, Stanford University}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We test whether the existing transmission system of Minas Gerais (MG), Brazil, can deliver the generation and storage portfolios that a
+policy-constrained hourly capacity-expansion model selects for 2035 (state targets) and 2050 (local fossil-free supply), and which
+reinforcements are justified. Following the CAISO policy-driven assessment taught in the course, the portfolios are first checked for
+resource adequacy, then mapped to substations, tested for peak and off-peak deliverability on the EPE 2035 network model
+(\Nmonitored{} monitored main-grid branches, \Nncont{} N-1 contingencies), mitigated with costed alternatives, and valued in a
+network-constrained 8,760-hour production-cost simulation.
+The 2035 portfolio is deliverable in every study condition ($\alpha\ge\NalphaASthreeeveningnonsolar$) and adequate under the model's import
+assumption. In 2050 the midday output is deliverable ($\alpha=\NalphaBSonepeakdelivery$), but evening delivery of the 5.3~GW battery fleet,
+3.7~GW of it sited in the north, is not ($\alpha=\NalphaBSthreeeveningnonsolar$ to \NalphaBHSNcaiso), and the network-constrained simulation sheds
+\Nensbexistinggrid~GWh of load (\Nenspctbexistinggrid\% of demand). An attributable plan of \NgroupsR{} reinforcement groups costing
+\RS\NcapexexclR--\NcapexR{}~M restores N-1 deliverability (\RS\Npremcapex~M more if parallel circuits share towers), cuts unserved energy to \Nensbwithplan~GWh and is economic (benefit-cost ratio
+\NbcrRfull--\NbcrRexcl). Siting the same batteries at load buses removes all but one reinforcement (\RS\NcapexL~M) and cuts the congestion
+cost from \RS\Ncongbexistinggrid~M/yr to \RS\Ncongbbessatloadexistinggrid~M/yr. Energy, not capacity, limits 2050 adequacy:
+a capacity-only COPT finds the system adequate, whereas an energy-limited Monte Carlo dispatch finds unserved energy in every simulated
+year and a dry year leaves \NeueBdryname~GWh unserved.
+\end{abstract}
+
+% ---------------------------------------------------------------------------------------------------------------------------
+\section{Question and approach}
+MG holds 10\% of Brazil's population and plans net-zero emissions by 2050 (PLAC-MG). Hydropower supplies most of its electricity, the
+state is a transit corridor between the North/Northeast and the Southeast, and new solar is concentrated in the north. Our driver is the
+question the NREL Oregon offshore-wind study asked for its coast \citep{nrel2021oregon,course_l15}: \emph{how much new supply can the
+existing system host, and does the planned portfolio need major grid improvements?}
+
+The study follows the CAISO policy-driven assessment \citep{course_l11}: a base portfolio and sensitivity portfolios feed a reliability
+assessment, a policy-driven need assessment (peak and off-peak deliverability) and an economic assessment (production-cost simulation of
+congestion and curtailment). Figure~\ref{fig:flow} maps the course flow onto this study. All network work is restricted to the main grid
+(lines $\ge$230~kV and network transformers); 138~kV and below are outside the scope.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[every node/.style={font=\scriptsize, align=center},
+  box/.style={draw, thick, minimum width=3.0cm, minimum height=0.95cm, text width=2.9cm},
+  dbox/.style={draw, thick, dashed, minimum width=3.0cm, minimum height=0.95cm, text width=2.9cm},
+  ar/.style={-{Latex[length=2mm]}, thick}]
+\node[box]  (p)    at (0,0)     {1a Portfolio LP (2035/2050)\\PyPSA re-solve, sensitivities};
+\node[box]  (map)  at (3.6,0)   {2a/2b Busbar mapping\\POI hosting map, siting};
+\node[box]  (del)  at (7.2,0)   {3a/3b Peak \& off-peak\\deliverability (DC, N-1)};
+\node[box]  (pcm)  at (10.8,0)  {4a Production cost\\8,760 h, lazy flowgates};
+\node[dbox] (bess) at (3.6,1.5) {2c BESS location\\(experiment)};
+\node[box]  (ra)   at (0,-1.9)  {1b Resource adequacy\\COPT, energy-limited MC};
+\node[box]  (mit)  at (7.2,-1.9) {3f Mitigation\\costed, verified on grid};
+\node[box]  (bcr)  at (10.8,-1.9) {4b Benefit-cost ratio,\\findings};
+\node[dbox] (opt)  at (7.2,-3.6) {5 Checks: P7, AC voltage,\\annual vs hourly matching};
+\draw[ar] (p) -- (map); \draw[ar] (map) -- (del); \draw[ar] (del) -- (pcm); \draw[ar] (pcm) -- (bcr);
+\draw[ar] (p) -- (ra); \draw[ar] (del) -- (mit); \draw[ar] (mit) -- (bcr); \draw[ar, dashed] (bess) -- (map);
+\draw[ar] (del.south west) -- node[above, sloped, font=\tiny]{deliverable fraction} (ra.east);
+\draw[ar, dashed] (mit) -- (opt);
+\end{tikzpicture}
+\caption{Study flow (solid: core assessment, after the CAISO policy-driven assessment; dashed: experiments and checks).}
+\label{fig:flow}
+\end{figure}
+
+\paragraph{Data.} The hourly capacity-expansion model (one weather year, 8,760 hours, MG as one area with an import bound) and its two
+saved solutions are the portfolio record. The network is the EPE 2035 planning case exported from ANAREDE (1,489 buses, 1,890 branches),
+an MG-centred equivalent whose boundary buses carry \NheadroomAtwo~MW of inflows and 18,002~MW of outflows. It is an evening snapshot with
+all 106 existing PV buses at 0~MW and is also used for 2050 (no 2050 network exists). Forced-outage data are NERC GADS class averages
+\citep{nerc_gads_b4}; unit costs come from published EPE and ANEEL documents \citep{epe_nt047_2022,epe_nt029_2023,epe_re071_2025,aneel_bpr};
+unserved energy is valued at the 2025 Custo do D\'eficit \citep{ccee2025deficit}. Optimisation uses PyPSA \citep{brown2018pypsa} with
+linopy \citep{hofmann2023linopy} and HiGHS \citep{huangfu2018highs}.
+
+% ---------------------------------------------------------------------------------------------------------------------------
+\section{Portfolios (1a)}
+The portfolio LP minimises the present value of incremental capital, fixed O\&M and operating cost subject to hourly balance, policy
+capacity floors (PLAC-MG), resource ceilings, a monthly hydro energy budget with ramping, an import bound of 4.89~GW, and battery
+state-of-charge dynamics; 2050 requires local supply without imports or gas. We rebuilt the single-year LP in PyPSA (one bus; extendable
+generators and storage; custom constraints for the monthly hydro budget, cyclic ramping and the single battery converter).
+The PyPSA model reproduces the saved objectives (\RS\NobjA~M and \RS\NobjB~M) and capacity mixes to within $10^{-12}$
+(relative), and a re-solve of the original code under dry hydrology (\RS\NobjdryA~M and \RS\NobjdryB~M) to the same precision.
+The model's 2035 stage counts capital and fixed O\&M over 2031--2050 but operating cost only over 2031--2035, so the two
+objectives are not comparable; the saved portfolios are kept unchanged, since every later step depends on them.
+The 2035 portfolio sits entirely on the policy floors (1.0~GW central PV, 1.04~GW distributed PV, 0.88~GW biomass, 0.30~GW small hydro);
+the 2050 portfolio adds 12.9~GW central PV, 7.9~GW distributed PV, 2.0~GW wind, 0.4~GW biogas and 5.3~GW of 8-hour batteries
+(Table~\ref{tab:portfolios}). Sensitivity portfolios follow the CAISO/PJM list \citep{course_l9}: load $\pm$6\%, dry and (parametric) wet
+hydrology and gas price. In 2035 they leave the portfolio unchanged; in 2050 load +6\% and dry hydrology add storage and solar.
+
+\input{tables/portfolio_sens}
+
+% ---------------------------------------------------------------------------------------------------------------------------
+\section{Resource adequacy (1b)}\label{sec:ra}
+Adequacy is tested two ways \citep{course_l4,course_l5,course_l8}. \textbf{Method A} is the course's capacity outage probability table:
+dispatchable units (reservoir hydro, gas, biogas) are convolved with GADS EFORd values (Table~\ref{tab:gads}); hydro availability in each
+hour is the model's hourly upper bound scaled by the available share of installed units; profile-based resources and the firm import bound
+reduce the load; batteries shave each day's net-load peaks. LOLE, LOLH and EUE follow, and ELCC values use the CAISO calibration (add or
+remove perfect capacity to reach 0.1~day/yr with and without each resource class). \textbf{Method B} is a sequential Monte Carlo: two-state
+Markov outage histories (GADS EFORd and mean outage duration) derate hydro, gas, biogas and batteries hour by hour, and each history is an
+8,760-hour minimum-cost PyPSA dispatch with the monthly hydro budgets, ramping and storage dynamics. Unit data are not in the package:
+the model's 13.38~GW of reservoir hydro is split over the 37 MG hydro-plant buses of the network in proportion to their reactive limits and
+then into units of at most 250~MW (125/500~MW sensitivities). Only deliverable capacity counts \citep{course_l8}, so both methods are
+repeated with every new resource scaled by the peak deliverable fraction $d=\min(1,\alpha_{HSN},\alpha_{SSN})=\Ndfrac$ for 2050
+(Section~\ref{sec:deliv}).
+
+\input{tables/gads}
+\input{tables/ra_copt}
+\input{tables/ra_smc}
+
+\paragraph{Findings.} With the model's firm import bound, 2035 is comfortably adequate (no unserved energy in either method or
+hydrology; Method A could remove \NpcsurplusA~MW of perfect capacity and stay at 0.1~day/yr). Without firm imports MG alone would need
+\NpcgapAnameplatenofirmimports~MW more firm capacity. For 2050, Method A again reports an adequate system at nameplate, but Method B, which
+sees the monthly hydro energy budgets, finds unserved energy in every simulated year (\NeueBnormalname~GWh on average,
+P(any shortfall) = \NpanyBnormalname); at most \NgapBnormalname~MW of firm capacity would bring P(any shortfall) to 0.1 (the gap search resolves \Ngapres~MW). Counting only deliverable
+capacity raises the Method-A gap to \NpcgapBdeliverableonly~MW, and a dry year leaves \NeueBdryname~GWh unserved (\NeuepctBdryname\% of
+load) even at nameplate, needing at most \NgapBdryname~MW of firm capacity. Method B's deliverable-only case scales the new resources' output by
+$d$ in every hour and so also removes midday energy that is deliverable ($\alpha=\NalphaBSonepeakdelivery$ in S1); its \NeueBnormaldel~GWh
+(normal hydrology) is a loose upper bound, against \Nensbexistinggrid~GWh in the production-cost run that applies the grid hour by hour
+(Section~\ref{sec:pcm}). The 2050 portfolio meets energy on average but has no reserve for
+outages or drought. ELCC values (Appendix Table~\ref{tab:elcc}) show the expected pattern: new solar contributes little at the evening peak,
+8-hour batteries contribute most of their nameplate.
+
+% ---------------------------------------------------------------------------------------------------------------------------
+\section{Busbar mapping and hosting capacity (2a--2c)}
+The reference siting places each technology's allocation in each candidate area at the nearest eligible substation (lowest eligible
+voltage on ties). A connection-cost MILP comparing a 4-area northern set with a 12-area regional set gives the POI half of
+interconnection cost (Table~\ref{tab:regional}): \RS\NpoicostAL~M vs \RS\NpoicostAR~M in 2035 and \RS\NpoicostBL~M vs \RS\NpoicostBR~M in
+2050. Network upgrade costs, the other half, are in Section~\ref{sec:mitigation}.
+
+Figure~\ref{fig:poi} is the per-POI hosting map in the style of NREL's Finding~1: the injection one POI can make alone before the first
+attributable violation. \Npoiabovefive{} of the \Nnpoi{} candidate stations can host at least 5~GW; the largest is \Npoitopname{}
+(\Npoitop~MW). 345 and 230~kV stations host 0.3--3.3~GW.
+
+\input{tables/regional}
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.86\linewidth]{figures/poi_hosting.pdf}
+\caption{Per-POI hosting capacity of the 2050 candidate stations (pro-rata absorption, N-0 and N-1, 5\% circle).}\label{fig:poi}
+\end{figure}
+
+% ---------------------------------------------------------------------------------------------------------------------------
+\section{Deliverability and reliability (3a--3e)}\label{sec:deliv}
+\paragraph{Method.} Flows are incremental DC flows anchored on the AC solution, $f=F_{AC}+\mathrm{PTDF}\,\Delta p$, with line-outage
+distribution factors for N-1 (normal ratings for N-0, emergency ratings for N-1) on \Nmonlines{} lines and \Nmontx{} transformer branches
+(\Nncont{} contingencies; \Nnbridges{} radial outages skipped). The injected portfolio must be absorbed: following the CAISO convention all
+other online generation is scaled down in proportion to its output (MG hydro and thermal plus the boundary inflow equivalents,
+\NheadroomP~MW of headroom), with the load at the target-year level (2050 adds \NgrowthMW~MW pro rata to existing load). A facility is
+attributed to the portfolio only inside the CAISO 5\% circle: some study unit has a distribution factor $\ge$5\% on it or a flow impact
+$\ge$5\% of its rating \citep{caiso2018deliv,course_l11}. The one pre-existing N-1 overload of the base case is a reliability need and is
+reported separately. Peak deliverability uses the model's evening hours of highest battery and non-solar output (S3) and the CAISO HSN/SSN
+definitions; off-peak deliverability uses the model's midday hours of highest new output after (S1) and before (S2) curtailment
+(Appendix Table~\ref{tab:factors}). $\alpha$ is the largest scaling of the joint study output that meets every attributable limit.
+
+\paragraph{Validation.} The DC engine reproduces the earlier study's 663.31~MW and 8.62~MW results; PyPSA's PTDF, branch-outage
+distribution factors and linear power flow agree with it to $\le 2\times10^{-9}$; LODF and multiple-outage factors agree with explicit
+re-solves ($10^{-11}$ and $\Npgate$~MW).
+
+\input{tables/deliv_main}
+
+\paragraph{Results.} The 2035 additions are deliverable everywhere with 5.6--7.5$\times$ margin. In 2050 the midday output is
+deliverable after the model's own curtailment ($\alpha=\NalphaBSonepeakdelivery$) and almost before it ($\NalphaBStwoprecurtailment$),
+whereas evening delivery is not: $\alpha=\NalphaBSthreeeveningnonsolar$ (S3) and \NalphaBHSNcaiso{} (HSN), with \NupsBSthreeeveningnonsolar{}
+to \NupsBHSNcaiso{} upgrade groups, mostly transformation at Ir\'ape, Montes Claros~2, Jana\'uba~3 and S\~ao Gon\c{c}alo do Par\'a. The cause
+is the battery fleet: 3.7 of 5.3~GW are allocated to Montes Claros and Jana\'uba, and their full discharge flows south through northern
+transformers. Placing the batteries at load buses lifts evening $\alpha$ to \NalphaBLSthreeeveningnonsolar{} (S3) and \NalphaBLHSNcaiso{}
+(HSN) (Figure~\ref{fig:alpha}). The portfolio also worsens the base case's N-1 overload of the S\~ao Gon\c{c}alo do Par\'a 500/138~kV
+transformation by up to \Npreworstadd~MW. Sensitivities (Appendix): the export-only convention scales every existing outflow tie in
+proportion and makes the Itajub\'a~3--Cachoeira Paulista interface bind first; testing every row instead of the circle drives $\alpha$ to
+zero through the pre-existing overload; the 2050 sensitivity portfolios with more storage (load +6\%, dry hydro) need 14--15 groups.
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.92\linewidth]{figures/alpha_2050.pdf}
+\caption{2050 deliverability by study condition and siting (main case). Values below the dashed line need reinforcement.}\label{fig:alpha}
+\end{figure}
+
+\paragraph{P7 and AC checks (3e, 3d).} Treating every pair of existing parallel circuits on one corridor as a common structure (\Npairs{} pairs;
+conservative, tower data are not available; new circuits are on their own structures), P7 binds before P1 in the three 2050 peak cases of
+the reference siting (S3, HSN and SSN; Table~\ref{tab:p7}): losing two of the three Itabira~2--Itabira~5 230~kV circuits overloads the third
+($\alpha=\Npsevenminrefex$). The reinforcement plan of Section~\ref{sec:mitigation}, sized for P1, leaves this need ($\alpha=\Npsevenminrefplan$). Repeating the same procedure on
+the P7 rows adds \Npremn{} new 230~kV circuits: \Npremnameone{} (\Npremkmone~km routed, \RS\Npremcapexone~M; the surviving circuit needs
++\Npremincone\%) and then \Npremnametwo{} (\RS\Npremcapextwo~M): once the first circuit is in, the next binding P7 row is the plan's new
+\Npremnametwo{} circuit for the loss of both existing ones. Together they cost \RS\Npremcapex~M (\RS\Npremarr~M/yr), raise the reference-siting
+capex to \RS\Npremplancapex~M and lower the full-plan BCR to \Nprembcr{}; with them every condition meets P1 and P7
+($\alpha\ge\Npsevenminrefrem$). With batteries at load P7 never binds first on the existing grid, and the one-bank plan meets P1 and P7
+($\alpha\ge\Npsevenminbalplan$). For the AC check, PyPSA's Newton--Raphson power flow with the network's injections reproduces the PWF flows (median error \Nacmed~MW, \Nacshare\% of branches within
+2~MW + 2\%, median voltage error \Nacvmed~pu). The voltage screen (Table~\ref{tab:ac}) finds two new high-voltage buses in the 2035 off-peak
+cases (S1, S2), one new low-voltage bus in the 2050 evening reference cases (S3, HSN) and, with batteries at load, a voltage rise above the
+normal limit at up to 27 buses in the evening as the network unloads, a condition normally handled by reactive switching that the screen
+does not model.
+
+\input{tables/p7}
+\input{tables/ac}
+
+\paragraph{Does a constraint subset represent the full system?} The production-cost run needs a manageable set of flow constraints. Rows
+loaded $\ge$90\% at full study output in any of the \Nsubsetcases{} cases form a subset of \Nsubsetpairs{} rows (\Nsubsetpct\% of
+\Nsubsetrowsfull), \Nsubsetelements{} elements in \Nsubsetgroups{} groups. Because removing constraints can only make a problem more
+optimistic, a solution that satisfies all omitted rows is optimal for the full problem; and any row that binds at $\alpha<1$ is loaded
+$\ge$100\% at full output, so it is in the subset. Empirically $\alpha$ is identical in \Nsubsetinsampleexactalphaltone{} of
+\Nsubsetcasesalphaltone{} in-sample cases with $\alpha<1$ and in \Nsubsetoutofsampleexactalphaltone{} of
+\Nsubsetoutofsamplecasesalphaltone{} out-of-sample cases (subset drawn from the reference siting only). The production-cost run therefore
+adds flowgates lazily and re-checks every hour on all rows (Section~\ref{sec:pcm}).
+
+% ---------------------------------------------------------------------------------------------------------------------------
+\section{Mitigation and battery siting (3f, 2c)}\label{sec:mitigation}
+For each attributable group the alternatives follow the PG\&E cluster-study structure \citep{course_l12}: status quo; limiting-element
+removal or re-rating; reconductoring; transformer addition or new circuit; storage (here, siting the planned batteries at load); grid-enhancing
+technologies such as dynamic line rating \citep{course_l6}; and remedial action schemes. Costed alternatives use published unit costs
+(Appendix Table~\ref{tab:unitcosts}): EPE/ONS and EPE transformer and bay costs at ANEEL reference prices, EPE line costs, and EPE's
+finding that reconductoring costs 65--108.5\% of a new circuit. Sizing assumes identical parallel elements share flow equally. The plan is
+then verified on a network that actually contains the new elements (PTDF and LODF rebuilt, base flows re-anchored): every study condition is
+deliverable on the first pass (smallest $\alpha=\Nveralphamin$).
+
+\input{tables/mit_plan}
+
+The reference-siting plan has \NgroupsR{} groups. Its costed total is \RS\NcapexR~M (\RS\NcapexlowR--\NcapexhighR~M across the
+reconductoring range); five line needs are below 10\% and are candidates for re-rating or dynamic rating, without which the plan is the four
+transformer additions, \RS\NcapexexclR~M. With batteries at load the plan is one Ir\'ape bank, \RS\NcapexL~M. The pre-existing
+S\~ao Gon\c{c}alo do Par\'a overload (\Nprebase~MW in the base case) is a reliability need requiring one bank (\RS\Nprecapexbase~M); the
+portfolio's \Npreadd~MW raises it to \Nprebanks{} banks, an attributable increment of \RS\Nprecapexinc~M (possibly the same bank as the
+plan's S\~ao Gon\c{c}alo do Par\'a addition).
+
+% ---------------------------------------------------------------------------------------------------------------------------
+\section{Economic assessment (4a, 4b)}\label{sec:pcm}
+\paragraph{Method.} The fixed portfolio is dispatched hour by hour in PyPSA with the model's costs and limits plus DC flowgates on the main
+grid \citep{course_l9}. Hourly changes relative to the network snapshot are injected on their buses: the snapshot corresponds to the 2035
+model hour with the same MG load (10,731~MW) and hydro output (5,132~MW); load, existing distributed generation and unserved energy go to
+load buses pro rata, reservoir hydro to the hydro-plant buses, imports to the boundary inflow equivalents, existing PV equally to the PV buses,
+thermal to the thermal buses, and new resources and batteries to their POIs, so the changes balance exactly. Months are solved separately
+with the monthly hydro budgets and month-boundary battery states taken from the annual unconstrained dispatch; flowgates are added lazily
+until no N-0 or N-1 row is violated in any hour. Annual system cost is production cost plus unserved energy at \RS8,327.76/MWh
+\citep{ccee2025deficit} plus unused zero-cost energy (curtailment of the profile-based resources as defined in the model, and unused hydro budget) at the 2025
+SE marginal cost, \RS209.47/MWh (the model's import price). Congestion curtailment is the unused zero-cost energy above the same year's run
+without network limits, as a share of the available profile-based and hydro energy (the split between the two is not unique); we
+screen it against a 5\% threshold (a study choice).
+Without flowgates the monthly runs reproduce the annual dispatch (no unserved energy; same imports and production cost).
+
+\input{tables/pcm}
+
+\paragraph{Results.} In 2035 the network constrains only \Nrowsaexistinggrid{} rows briefly and adds no congestion cost
+(\RS\Ncongaexistinggrid~M/yr). In 2050 the existing grid sheds \Nensbexistinggrid~GWh of load (\Nenspctbexistinggrid\%) in every month,
+a congestion cost of \RS\Ncongbexistinggrid~M/yr that is almost entirely unserved energy (Figure~\ref{fig:pcm}); without network limits
+the same dispatch serves all load. The reinforcement plan reduces unserved energy to \Nensbwithplan~GWh, all in \Nbudgetminmonth, the month with the
+smallest hydro energy budget (\Nbudgetmin~GWh against \Nbudgetothermin--\Nbudgetothermax~GWh in the other months), and its benefit-cost ratio is \NbcrRfull{} for the full costed plan and \NbcrRexcl{} if small line needs are met by
+non-wires means (Table~\ref{tab:bcr}); because the benefit is mostly avoided unserved energy, it stays far above one in every valuation
+sensitivity (minimum \NbcrRmin). Siting the batteries at load is worth \RS\Nbenreloc~M/yr before any grid investment: unserved energy falls
+to \Nensbbessatloadexistinggrid~GWh, again only in \Nbudgetminmonth. Its one-bank plan leaves \Nensbbessatloadwithplan~GWh in
+\Nbudgetminmonth; the flowgates that the lazy check adds concentrate on \Nfgbalplanone{} (\Nfgbalplanrowsone{} rows), \Nfgbalplantwo{}
+(\Nfgbalplanrowstwo) and \Nfgbalplanthree{} (\Nfgbalplanrowsthree). Apart from the pre-existing S\~ao Gon\c{c}alo do Par\'a overload, the
+study-condition screen did not flag these elements; they are candidates for an economic-driven addition. The energy-tight month, not the study hours, sets the residual
+need, which is why the production-cost run is part of the assessment.
+
+\paragraph{What drives curtailment?} Not the grid. Without any network limit, \Nunusedbcopperplate~TWh of zero-cost energy
+(\Nunusedpctbcopperplate\% of the available profile-based and hydro energy) goes unused in 2050 because the hourly local-balance rule
+allows no exports; the existing grid adds congestion curtailment of only \Ncongcurtpctbexistinggrid\% (\Ncongcurtpctbwithplan\% with the plan), well below
+the 5\% screen. Unlike NREL's Oregon finding that congestion drives curtailment \citep{nrel2021oregon}, the grid's cost here is
+unserved load, not lost energy, and the curtailed energy is what an export option would sell (next paragraph).
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.92\linewidth]{figures/pcm_ens.pdf}
+\caption{Monthly unserved energy in the 2050 network-constrained production-cost runs.}\label{fig:pcm}
+\end{figure}
+\input{tables/bcr}
+
+\paragraph{Hourly or annual matching.} The 2050 requirement is hourly local balance. Allowing exports alone lowers cost by
+\NmatchabsHone\% (\NmatchHexports~TWh exported); annual matching (imports allowed hour by hour, annual imports no greater than exports) lowers it
+by \NmatchabsAone\% and removes the need for batteries, wind and biogas (Table~\ref{tab:matching}), in line with the course's 24/7 case
+\citep{course_contracting}. That alternative relies on \NmatchAexports~TWh/yr of exports, which the export interface results above would
+have to accommodate.
+\input{tables/matching}
+
+% ---------------------------------------------------------------------------------------------------------------------------
+\section{Findings}
+\begin{enumerate}\itemsep2pt
+\item \textbf{2035: no major grid improvement is needed.} The policy portfolio is deliverable in every study condition with 5.6--7.5$\times$
+margin, adds no congestion cost, and is adequate under the model's import assumption.
+\item \textbf{2050 midday solar is deliverable; 2050 evening storage discharge is not.} Midday $\alpha=\NalphaBSonepeakdelivery$; evening
+$\alpha=\NalphaBSthreeeveningnonsolar$--\NalphaBHSNcaiso{} because 3.7~GW of batteries sit in the north.
+\item \textbf{Battery siting is the cheapest fix.} At load buses the evening need falls to one transformer bank (\RS\NcapexL~M) and the
+system cost falls by \RS\Nbenreloc~M/yr.
+\item \textbf{If batteries stay in the north, the attributable plan is justified.} \NgroupsR{} groups, \RS\NcapexexclR--\NcapexR~M,
+BCR \NbcrRfull--\NbcrRexcl. If existing parallel circuits share towers (P7), \Npremn{} more 230~kV circuits (\RS\Npremcapex~M) are
+needed and the full-plan BCR is \Nprembcr.
+\item \textbf{2050 adequacy is energy-limited.} A capacity-only COPT finds no shortfall; the energy-limited simulation finds shortfalls
+in every simulated year and \NeueBdryname~GWh in a dry year, needing up to \NgapBnormalname~MW (normal) and \NgapBdryname~MW (dry) of firm capacity.
+\item \textbf{Curtailment comes from the hourly local-balance rule, not from congestion.} Even without network limits
+\Nunusedbcopperplate~TWh (\Nunusedpctbcopperplate\%) of 2050 zero-cost energy goes unused; congestion adds \Ncongcurtpctbexistinggrid\%
+(below the 5\% screen).
+\item \textbf{The definition of fossil-free matters.} Annual instead of hourly matching lowers 2050 cost by \NmatchabsAone\%, if exports
+can be delivered.
+\end{enumerate}
+
+\paragraph{Limitations.} One network snapshot (evening) and one weather year; the 2050 network is the 2035 topology; DC flows except for the N-0 AC voltage screen, which covers the existing grid only and does not enforce generator reactive
+limits; hydro unit sizes are a proxy; reconductoring is modelled as a rating increase with unchanged
+impedance and new circuits and banks as added parallel elements; P7 assumes that existing parallel circuits share structures; the
+production-cost benefits are computed for the P1 plan and held at their 2050 value over the asset life.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\section{Supplementary tables}
+\input{tables/study_factors}
+\input{tables/deliv_absorption}
+\input{tables/deliv_rule}
+\input{tables/deliv_siting}
+\input{tables/deliv_existingpv}
+\input{tables/sens_deliv}
+\input{tables/ra_elcc}
+\input{tables/unit_costs}
+
+\FloatBarrier
+\section{Reproducibility}
+All results are produced by scripts in the repository (\texttt{hosting\_capacity/}, \texttt{planning\_study/}); every table and figure
+and most numbers in the text are generated from their CSV outputs (\texttt{planning\_study/\allowbreak report/\allowbreak make\_report.py}), and the few values
+typed into the text were checked against them. The environment is listed in
+\texttt{planning\_study/\allowbreak requirements.txt} (PyPSA 1.2.4, linopy 0.10.1, HiGHS 1.16, pandas 2.3.3). Third-party input data are not
+redistributed. Readable station names are inferred from network bus codes.
+\end{document}

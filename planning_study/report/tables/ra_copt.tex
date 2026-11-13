@@ -1,0 +1,22 @@
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\caption{Method A (COPT convolution, capacity only). Firm gap: perfect capacity to add ($+$) or that could be removed ($-$) for LOLE = 0.1 day/yr. \enquote{Deliverable only} scales every new resource by the peak deliverable fraction $\min(1,\alpha_{HSN},\alpha_{SSN})$.}
+\label{tab:copt}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{rlrrrr}
+\toprule
+Year & Counting & LOLE (d/yr) $\downarrow$ & LOLH (h/yr) $\downarrow$ & EUE (MWh/yr) $\downarrow$ & Firm gap to 0.1 d/yr (MW) $\downarrow$ \\
+\midrule
+2035 & nameplate & 0.000 & 0.00 & 0 & -3,564 \\
+2035 & nameplate, unit max 125 MW & 0.000 & 0.00 & 0 & -3,749 \\
+2035 & nameplate, unit max 500 MW & 0.000 & 0.00 & 0 & -3,250 \\
+2035 & nameplate, no firm imports & 112.977 & 253.00 & 64,686 & 1,329 \\
+2050 & nameplate & 0.000 & 0.00 & 0 & -1,283 \\
+2050 & deliverable only & 7.994 & 13.62 & 2,379 & 717 \\
+2050 & nameplate, unit max 125 MW & 0.000 & 0.00 & 0 & -1,422 \\
+2050 & nameplate, unit max 500 MW & 0.000 & 0.00 & 0 & -1,021 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
