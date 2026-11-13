@@ -23,34 +23,22 @@ This repository package contains the existing computational workflows and saved 
 
 The 2050 case **reuses the 2035 network as a stress-test proxy**, not an official 2050 planning case. Reported connection costs depend on assumptions about candidate siting and routes. Residual overloads remain after parallel-circuit screening. Values from alternative scenarios and optimization stages must not be combined without reconciling their definitions.
 
-## Part II (revised): hosting capacity of the existing grid ([#3](https://github.com/AlbertHX86/MG-grid-optimization/issues/3))
+## Part II (revised): deliverability of the fixed portfolios on the existing main grid ([#3](https://github.com/AlbertHX86/MG-grid-optimization/issues/3))
 
-The project driver is now: **how much new generation can the existing MG grid deliver, and does the fixed 2035/2050 portfolio need major grid improvements?** This follows the course case studies (NREL Oregon offshore wind: "the existing system may support up to 2.6 GW"; CAISO portfolio-driven transmission planning).
+The project driver is: **can the existing MG main grid deliver the fixed 2035/2050 portfolios, and which reinforcements do they need?** The flow follows the CAISO policy-driven assessment taught in ENERGY176/276 (Lecture 11): portfolio and resource adequacy → busbar mapping → peak/off-peak deliverability, reliability and mitigation → production-cost economics → findings. The plan and status are in [`planning_study/PROGRESS.md`](planning_study/PROGRESS.md).
 
-- **Code:** `hosting_capacity/`.
-  - DC N-0/N-1 screen on 283 lines + 272 network-transformer branches, with 437 LODF contingencies.
-  - Study conditions come from the LP's own hourly dispatch.
-  - Absorption of the new MW is explicit, as one of three cases:
-    - **A1:** MG hydro/thermal back-down.
-    - **A2:** displaced boundary inflows, including the Estreito HVDC infeed.
-    - **B:** export to the rest of the SIN.
-  - This replaces the load-proportional convention that produced the 663 MW Vale do Aço result.
-- **Results:** [`hosting_capacity/RESULTS.md`](hosting_capacity/RESULTS.md) (generated). Summary of the current run (reference siting):
-  - **2035 new additions on the PWF (evening) snapshot:** deliverable under every absorption case with 3–7× margin.
-    - The data contain no midday base case.
-    - Adding today's existing PV/DG at midday (a sensitivity) makes the 2035 export case bind on the Itajubá 3–Cachoeira Paulista 500 kV interface.
-  - **2050 midday (8.2 GW of LP-used new output):**
-    - MG's own hydro/thermal back-down (5.6 GW in the snapshot) cannot absorb it.
-    - Export delivers ≈7.5 GW. The gap closes with +86 MW (+3.7%) on the 52.5 km Itajubá 3–Cachoeira Paulista 500 kV line.
-    - With 2050 load growth absorbing ≈2.2 GW locally, export needs no upgrade.
-  - **2050 evening:** 3.7 GW of BESS discharging in the north needs 5–9 upgrade groups.
-    - Transformer banks at Irapé, Montes Claros 2, Janaúba 3 and Marimbondo.
-    - 345 kV line reinforcements.
-    - Placing BESS near load reduces this to ≤1.
-  - **Minor vs major depends on the threshold** (both are reported).
-    - Counting only short (≤50 km) parallel circuits as minor makes the 2050 export and evening cases major.
-    - Also counting line uprates of ≤25% as minor leaves only the existing-PV export sensitivity major. This rule was added after the first results.
-- **Run** (after restoring the private inputs, see below): `bash run_hosting_capacity.sh`. It runs the regression gate `hosting_capacity/check_engine.py` first.
+- **Code:** `hosting_capacity/` (v2).
+  - Scope: main grid only, ≥230 kV lines (283) and network transformers (272 branches), 437 LODF contingencies.
+  - Study conditions: off-peak from the LP's midday hours; peak from the LP's evening hours and the CAISO HSN/SSN exceedance definitions.
+  - Absorption, main case: all other online generation scaled down pro rata (MG hydro/thermal plus boundary inflow equivalents), load at the target-year level. MG-only back-down, boundary-only displacement and export are sensitivities.
+  - Attribution: CAISO 5% circle (DFAX ≥ 5% or flow impact ≥ 5% of the rating). Pre-existing overloads are reported separately as worsened reliability needs.
+  - Gates: `check_engine.py`, `check_pypsa.py` (PyPSA PTDF/BODF/linear power flow cross-check) and `check_results.py` (reproduces PR #4's all-rows α exactly).
+- **Results:** [`hosting_capacity/RESULTS.md`](hosting_capacity/RESULTS.md) (generated). Summary, reference siting, main case:
+  - **2035:** deliverable in every study condition (α 5.6–7.5).
+  - **2050 midday (off-peak):** deliverable after LP curtailment (α 1.22); before curtailment α 0.95 with one transformer group (Irapé) binding.
+  - **2050 evening (peak):** α 0.58–0.62, with 8–9 attributable upgrade groups, mostly transformation at Irapé, Montes Claros 2, Janaúba 3 and São Gonçalo do Pará, driven by 3.7 GW of BESS sited in the north. With BESS at load buses, α rises to 0.89–1.18.
+  - The export sensitivity scales every existing outflow tie in proportion; the Itajubá 3–Cachoeira Paulista result in PR #4 depends on that convention.
+- **Run** (after restoring the private inputs, see below): `PYTHON=<planning_study env> bash run_hosting_capacity.sh`.
 
 > **Note (2026-11-11):** `regional_comparison/results/` was regenerated after making the substation/kV tie-break in `candidate_table` explicit (lowest eligible kV, then bus id). The connection costs differ from the PDF draft (e.g. 2035 Local-4 R$1,285.10M vs 1,357.88M).
 > - The committed PDF numbers could not be reproduced with the original code on the regeneration machine (R$1,299.77M, pandas 3.1.1).

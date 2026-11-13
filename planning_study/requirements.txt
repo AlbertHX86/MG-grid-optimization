@@ -1,0 +1,14 @@
+# Environment used for the planning-study phases (hosting_capacity v2, PyPSA portfolio,
+# adequacy, mitigation, production-cost run, report). Python 3.13.
+pypsa==1.2.4
+linopy==0.10.1
+highspy==1.16.0
+pandas==2.3.3
+numpy==2.3.5
+scipy==1.18.1
+xarray==2026.9.0
+networkx==3.7
+matplotlib==3.11.2
+openpyxl==3.1.5
+pyproj==3.8.0
+geopandas==1.2.0
