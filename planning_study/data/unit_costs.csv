@@ -1,0 +1,16 @@
+item,voltage_kv,unit,value_thousand_brl,price_basis,source,table_or_row
+ATF single-phase unit 500/345 kV 500 MVA,500/345,per unit (500 MVA),23874.80,ANEEL BPR (as used in the note),EPE/ONS EPE-DEE-NT-047-2022 (RT-ONS DPL 0355/2022) Avaliação dos benefícios sistêmicos do TR 500/345 kV na SE UTE GNA,Annex 7.3 Table 7-2: 1° ATF 500/345 kV (3+1R) x 500 MVA 1Ф
+ATF single-phase unit 500/230 kV 100 MVA,500/230,per unit (100 MVA),10974.65,ANEEL Ref. 2025/0123,EPE-DEE-RE-071-2025-rev0,cost annex: 3° ATF 500/230 kV 3 x 100 MVA 1Ф
+ATF single-phase unit 345/138 kV 100 MVA,345/138,per unit (100 MVA),11232.09,ANEEL BPR base March 2023,EPE-DEE-NT-029-2023-rev0 Ampliação da SE Campinas 345/138 kV,cost table: 1°-4° ATF 345/138 kV (12+1R) x 100 MVA 1Ф
+CT transformer connection bay 500 kV (DJM),500,per bay,15044.12,ANEEL BPR (as used in the note),EPE-DEE-NT-047-2022,Annex 7.3 Table 7-2: CT 500 kV Arranjo DJM
+CT transformer connection bay 345 kV (DJM),345,per bay,12106.01,ANEEL BPR (as used in the note),EPE-DEE-NT-047-2022,Annex 7.3 Table 7-2: CT 345 kV Arranjo DJM
+CT transformer connection bay 230 kV (BD4),230,per bay,9667.92,ANEEL Ref. 2025/0123,EPE-DEE-RE-071-2025-rev0,cost annex: CT 230 kV Arranjo BD4
+CT transformer connection bay 138 kV (BD4),138,per bay,6430.34,ANEEL BPR base March 2023,EPE-DEE-NT-029-2023-rev0,cost table: CT 138 kV Arranjo BD4
+New line 230 kV,230,per km,1104.18,EPE 2025 (project cost file),EPE-DEE-RE-071-2025-rev0 (inputs/cost_assumptions.json),basis_230_kv_epe_line_million_brl_per_km
+New line 345 kV single circuit 4x954 MCM,345,per km,2387.95,ANEEL BPR (as used in the note),EPE-DEE-NT-047-2022,Annex 7.3 Table 7-3: Circuito Simples 345 kV 4 x 954 MCM (RAIL)
+New line 500 kV,500,per km,2469.23,EPE 2025 (project cost file),EPE-DEE-RE-071-2025-rev0 (inputs/cost_assumptions.json),basis_500_kv_epe_line_million_brl_per_km
+Line entry bay 230 kV,230,per bay,10501.25,EPE 2025 (project cost file),EPE-DEE-RE-071-2025-rev0 (inputs/cost_assumptions.json),basis_230_kv_epe_line_bay_million_brl
+Line entry bay 345 kV (DJM),345,per bay,10517.52,ANEEL BPR (as used in the note),EPE-DEE-NT-047-2022,Annex 7.3 Table 7-3: EL 345 kV Arranjo DJM
+Line entry bay 500 kV,500,per bay,13397.69,EPE 2025 (project cost file),EPE-DEE-RE-071-2025-rev0 (inputs/cost_assumptions.json),basis_500_kv_epe_line_bay_million_brl
+Reconductoring vs new line (total cost ratio),all,ratio,0.650,ANEEL Ref. 2025/0123,EPE-DEE-RE-071-2025-rev0,Table 14-39 (lowest ratio of three 500 kV cases: 65.0%)
+Reconductoring vs new line (total cost ratio),all,ratio,1.085,ANEEL Ref. 2025/0123,EPE-DEE-RE-071-2025-rev0,Table 14-39 (highest ratio of three 500 kV cases: 108.5%)
