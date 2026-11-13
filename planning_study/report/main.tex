@@ -106,8 +106,13 @@ The model's 2035 stage counts capital and fixed O\&M over 2031--2050 but operati
 objectives are not comparable; the saved portfolios are kept unchanged, since every later step depends on them.
 The 2035 portfolio sits entirely on the policy floors (1.0~GW central PV, 1.04~GW distributed PV, 0.88~GW biomass, 0.30~GW small hydro);
 the 2050 portfolio adds 12.9~GW central PV, 7.9~GW distributed PV, 2.0~GW wind, 0.4~GW biogas and 5.3~GW of 8-hour batteries
-(Table~\ref{tab:portfolios}). Sensitivity portfolios follow the CAISO/PJM list \citep{course_l9}: load $\pm$6\%, dry and (parametric) wet
+(Figure~\ref{fig:portfolio} and Table~\ref{tab:portfolios}). Sensitivity portfolios follow the CAISO/PJM list \citep{course_l9}: load $\pm$6\%, dry and (parametric) wet
 hydrology and gas price. In 2035 they leave the portfolio unchanged; in 2050 load +6\% and dry hydrology add storage and solar.
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.92\linewidth]{figures/portfolio_mix.pdf}
+\caption{New capacity of the 2035 and 2050 base portfolios by technology (LP record, reproduced in PyPSA). Battery storage is shown as power. Segments too narrow for a label: \Nportfolionarrow.}\label{fig:portfolio}
+\end{figure}
 
 \input{tables/portfolio_sens}
 

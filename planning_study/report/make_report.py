@@ -303,6 +303,49 @@ def portfolio():
     num('matchHexports', m2.loc['H1', 'exports_twh'], 1)
 
 
+def figure_portfolio():
+    """Stacked bar of the new capacity of the two base portfolios (the original draft's Figure 2, from the PyPSA record).
+    Seven series take categorical slots 1-7 in fixed order, stacked in slot order (adjacent pairs validated);
+    a segment too narrow for its label gets none and is listed in the caption macro instead."""
+    techs = [('solar_central', 'Central PV'), ('solar_distributed', 'Distributed PV'), ('bio', 'Biomass'),
+             ('small_hydro', 'Small hydro'), ('wind_site', 'Wind'), ('biogas', 'Biogas'), ('bess', 'BESS (8 h)')]
+    cols = [C1, C2, C3, C4, '#e87ba4', '#008300', '#6250d6']
+    lc = {'Central PV': 'central PV', 'Distributed PV': 'distributed PV', 'Biomass': 'biomass', 'Small hydro': 'small hydro',
+          'Wind': 'wind', 'Biogas': 'biogas', 'BESS (8 h)': 'BESS'}
+    d = pd.read_csv(R2 / 'portfolio_pypsa.csv').set_index('case')
+    assert (d.loc[['REFRESH_2035', 'REFRESH_2050'], 'cap_wind_gw'].abs() < 1e-6).all()   # generic wind never built
+    fig, ax = plt.subplots(figsize=(6.2, 1.85))
+    ax.grid(axis='y', visible=False)
+    ax.set_xlim(0, 34); ax.set_ylim(1.6, -0.6)
+    fig.canvas.draw(); rend = fig.canvas.get_renderer()
+    narrow = []
+    for yi, (year, case) in enumerate([(2035, 'REFRESH_2035'), (2050, 'REFRESH_2050')]):
+        left, skipped = 0.0, []
+        for (t, lab), c in zip(techs, cols):
+            v = max(0.0, float(d.at[case, f'cap_{t}_gw']))
+            if v < 5e-4:
+                continue
+            ax.barh(yi, v, left=left, height=0.46, color=c, edgecolor='white', linewidth=1.0,
+                    label=lab if yi == 1 else None)
+            txt = ax.text(left + v / 2, yi, f'{v:.2f}', ha='center', va='center', fontsize=fs(6.5),
+                          color=INK if c == C4 else 'white')
+            seg = ax.transData.transform((left + v, 0))[0] - ax.transData.transform((left, 0))[0]
+            if txt.get_window_extent(rend).width + 6 > seg:
+                txt.remove(); skipped.append(f'{lc[lab]} {v:.2f}')
+            left += v
+        ax.text(left + 0.4, yi, f'{left:.1f} GW', va='center', fontsize=fs(7), color=INK)
+        if skipped:
+            narrow.append(f'{year}: ' + ', '.join(skipped))
+    ax.set_yticks([0, 1]); ax.set_yticklabels(['2035', '2050'], fontsize=fs(7.5))
+    ax.set_xlabel('New capacity (GW)', fontsize=fs(7.5))
+    h, l = ax.get_legend_handles_labels()
+    order = [l.index(lab) for _, lab in techs]
+    ax.legend([h[i] for i in order], [l[i] for i in order], ncol=7, fontsize=fs(6.4), frameon=False, loc='lower left',
+              bbox_to_anchor=(0, 1.0), handlelength=1.0, columnspacing=1.0, handletextpad=0.4)
+    fig.tight_layout(); fig.savefig(FIG / f'portfolio_mix{SUFFIX}.pdf', metadata=PDFMETA); plt.close(fig)
+    num('portfolionarrow', '; '.join(narrow) + '~GW')
+
+
 def adequacy():
     g = pd.read_csv(PS / 'data' / 'gads_class_averages.csv')
     g['cls'] = g.gads_category.str.title()
@@ -592,7 +635,7 @@ def poster_numbers():
 
 def main():
     chk, poi = deliverability(); figures_deliverability(chk, poi)
-    portfolio(); adequacy(); mitigation(); regional(); p7_ac(); M = pcm(); figure_pcm(M); poster_numbers()
+    portfolio(); figure_portfolio(); adequacy(); mitigation(); regional(); p7_ac(); M = pcm(); figure_pcm(M); poster_numbers()
     global FS, SUFFIX
     FS, SUFFIX = 1.4, '_poster'
     with plt.rc_context({'font.size': fs(8.5)}):
