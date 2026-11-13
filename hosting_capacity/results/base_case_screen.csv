@@ -1,0 +1,2 @@
+branch,from_bus,to_bus,circuit,from_name,to_name,kind,kv,rate_mw,emrate_mw,contingency,flow_mw,limit_mw,overload_mw
+586,1783,4729,1,SGPARA-MG138,SGPAAC-MG000,transformer,138.000000,300.000000,360.000000,SGPARA-MG500-SGPAAB-MG000,402.942949,360.000000,42.942949

@@ -23,6 +23,30 @@ This repository package contains the existing computational workflows and saved 
 
 The 2050 case **reuses the 2035 network as a stress-test proxy**, not an official 2050 planning case. Reported connection costs depend on assumptions about candidate siting and routes. Residual overloads remain after parallel-circuit screening. Values from alternative scenarios and optimization stages must not be combined without reconciling their definitions.
 
+## Part II (revised): deliverability of the fixed portfolios on the existing main grid ([#3](https://github.com/AlbertHX86/MG-grid-optimization/issues/3))
+
+The project driver is: **can the existing MG main grid deliver the fixed 2035/2050 portfolios, and which reinforcements do they need?** The flow follows the CAISO policy-driven assessment taught in ENERGY176/276 (Lecture 11): portfolio and resource adequacy → busbar mapping → peak/off-peak deliverability, reliability and mitigation → production-cost economics → findings. The plan and status are in [`planning_study/PROGRESS.md`](planning_study/PROGRESS.md).
+
+- **Code:** `hosting_capacity/` (v2).
+  - Scope: main grid only, ≥230 kV lines (283) and network transformers (272 branches), 437 LODF contingencies.
+  - Study conditions: off-peak from the LP's midday hours; peak from the LP's evening hours and the CAISO HSN/SSN exceedance definitions.
+  - Absorption, main case: all other online generation scaled down pro rata (MG hydro/thermal plus boundary inflow equivalents), load at the target-year level. MG-only back-down, boundary-only displacement and export are sensitivities.
+  - Attribution: CAISO 5% circle (DFAX ≥ 5% or flow impact ≥ 5% of the rating). Pre-existing overloads are reported separately as worsened reliability needs.
+  - Gates: `check_engine.py`, `check_pypsa.py` (PyPSA PTDF/BODF/linear power flow cross-check) and `check_results.py` (reproduces PR #4's all-rows α exactly).
+- **Results:** [`hosting_capacity/RESULTS.md`](hosting_capacity/RESULTS.md) (generated). Summary, reference siting, main case:
+  - **2035:** deliverable in every study condition (α 5.6–7.5).
+  - **2050 midday (off-peak):** deliverable after LP curtailment (α 1.22); before curtailment α 0.95 with one transformer group (Irapé) binding.
+  - **2050 evening (peak):** α 0.58–0.62, with 8–9 attributable upgrade groups, mostly transformation at Irapé, Montes Claros 2, Janaúba 3 and São Gonçalo do Pará, driven by 3.7 GW of BESS sited in the north. With BESS at load buses, α rises to 0.89–1.18.
+  - The export sensitivity scales every existing outflow tie in proportion; the Itajubá 3–Cachoeira Paulista result in PR #4 depends on that convention.
+- **Run** (after restoring the private inputs, see below): `PYTHON=<planning_study env> bash run_hosting_capacity.sh`.
+
+> **Note (2026-11-11):** `regional_comparison/results/` was regenerated after making the substation/kV tie-break in `candidate_table` explicit (lowest eligible kV, then bus id). The connection costs differ from the PDF draft (e.g. 2035 Local-4 R$1,285.10M vs 1,357.88M).
+> - The committed PDF numbers could not be reproduced with the original code on the regeneration machine (R$1,299.77M, pandas 3.1.1).
+>   - The original code's candidate table is identical under pandas 2.3.3, so the pandas version is not the cause.
+>   - The cause of the gap is unknown.
+> - The tie rule then moves 11 of 102 candidate rows to a lower-kV bus at the same substation (Pirapora 2, Marimbondo, Itumbiara).
+> - The PDF, the PNGs in `regional_comparison/figures/` (which have no generator script in this repository) and `SHA256SUMS.txt` predate these changes.
+
 ## Project layout
 
 ```text

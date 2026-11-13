@@ -23,3 +23,6 @@ MG_*Reproducible.zip
 MG_Updated_Portfolio_and_Grid_Data_2026-11-11.zip
 # Avoid embedding a copy of the handoff ZIP into a repository.
 MG-grid-optimization_COMPLETE_HANDOFF_*.zip
+
+# Symlink created by run_regional_comparison.sh
+regional_comparison/MG_Step2_Congestion_Relief

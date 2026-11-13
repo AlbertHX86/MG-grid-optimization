@@ -40,4 +40,14 @@ if __name__=='__main__':
    for scope in ['Local_4_North_MG','Regional_12_Areas']:
     results.append(run(year,scope,scen,modes))
  pd.DataFrame(results).to_csv(OUT/'physical_parallel_line_comparison.csv',index=False)
+ # FINAL_COMPARISON.csv was previously assembled by hand and went stale; rebuild it here.
+ key=['year','scope','scenario_set']
+ summ=pd.read_csv(OUT/'model_comparison_summary.csv')
+ phys=pd.DataFrame(results)[key+['greedy_added_parallel_circuits','cost_assumed_million_brl','remaining_worst_case_sum_of_overloads_mw']]
+ final=summ.merge(phys,on=key,how='left')
+ final['connection_plus_circuit_estimate_mbrl']=final.optimized_connection_cost_million_brl+final.cost_assumed_million_brl
+ final['solver_status']=final.solver_status.astype(int)
+ final[key+['optimized_connection_cost_million_brl','worst_case_thermal_uplift_proxy_mw','greedy_added_parallel_circuits',
+            'cost_assumed_million_brl','remaining_worst_case_sum_of_overloads_mw','connection_plus_circuit_estimate_mbrl',
+            'solver_status','max_constraint_violation']].to_csv(OUT/'FINAL_COMPARISON.csv',index=False)
  print('DONE',flush=True)

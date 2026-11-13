@@ -1,0 +1,51 @@
+{
+  "python": "3.13.9",
+  "numpy": "2.3.5",
+  "pandas": "2.3.3",
+  "scipy": "1.18.1",
+  "monitored_branches": 555,
+  "monitored_lines": 283,
+  "contingencies": 437,
+  "radial_outages_skipped": 44,
+  "circle_threshold": 0.05,
+  "cap_mw": 1500.0,
+  "cap_units": 20,
+  "top_hours_fraction": 0.01,
+  "lp_load_twh": {
+    "2035": 80.42508377485512,
+    "2050": 97.18599192842592
+  },
+  "pwf_mg_load_mw": 10730.687984542266,
+  "load_growth_2050_mw_at_pwf_scale": 2236.3181645795257,
+  "main_case": "P_prorata",
+  "balancing_cases": {
+    "P_prorata": "Pro rata: all other online generation scaled down (MG hydro/thermal + boundary inflows)",
+    "A1_mg_backdown": "MG hydro + thermal back-down (UHE/PCH/UTE, proportional to output)",
+    "A2_displace_inflow": "Displace boundary inflows (BA/GO equivalents + Estreito HVDC infeed)",
+    "B_export": "Export to the rest of the SIN at current outflow boundaries (SP/RJ/ES)"
+  },
+  "energy_headroom_mw": {
+    "P_prorata": 29252.814311426315,
+    "A1_mg_backdown": 5636.390742210977,
+    "A2_displace_inflow": 23616.42356921534,
+    "B_export": Infinity
+  },
+  "subset": {
+    "pairs": 8393,
+    "elements": 66,
+    "groups": 30,
+    "contingencies": 437,
+    "rows_full": 242708,
+    "cases": 220,
+    "cases_alpha_lt1": 106,
+    "in_sample_exact_alpha_lt1": 106,
+    "in_sample_differ_alpha_lt1": 0,
+    "in_sample_same_verdict": 220,
+    "out_of_sample_pairs": 6729,
+    "out_of_sample_cases": 160,
+    "out_of_sample_cases_alpha_lt1": 71,
+    "out_of_sample_exact_alpha_lt1": 71,
+    "out_of_sample_differ_alpha_lt1": 0,
+    "out_of_sample_same_verdict": 160
+  }
+}

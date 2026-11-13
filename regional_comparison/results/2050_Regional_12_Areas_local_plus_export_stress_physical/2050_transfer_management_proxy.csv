@@ -1,7 +1,7 @@
 year,balance,pv_level,retain_fraction,curtailed_fraction,all_283_lines_within_rating,qualification
-2050,distributed_MG_load,0.35,0.40560749644026056,0.5943925035597395,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
-2050,distributed_MG_load,0.7,0.24133604369221356,0.7586639563077864,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
-2050,distributed_MG_load,0.9,0.19598045249476875,0.8040195475052312,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2050,distributed_MG_load,0.35,0.4056074964402757,0.5943925035597243,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2050,distributed_MG_load,0.7,0.2413360436922243,0.7586639563077757,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2050,distributed_MG_load,0.9,0.1959804524947799,0.8040195475052201,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
 2050,border_585,0.35,1.0,0.0,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
-2050,border_585,0.7,0.593958276945538,0.40604172305446196,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
-2050,border_585,0.9,0.476229796296771,0.523770203703229,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2050,border_585,0.7,0.5926200083417047,0.4073799916582953,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed
+2050,border_585,0.9,0.475124770706137,0.524875229293863,True,Assumes available replacement/withdrawal balancing; no hourly supply or storage feasibility guaranteed

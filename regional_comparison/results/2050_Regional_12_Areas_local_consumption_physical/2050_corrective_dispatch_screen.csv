@@ -1,4 +1,4 @@
 year,balance,pv_factor,feasible,minimum_replacement_dispatch_mw,replaced_share_of_new_PV_wind_output,max_rating_violation_after_mw,source
-2050,distributed_MG_load,0.35,True,942.1613989595728,0.1706396040647413,0.0,"Existing new PV/wind dispatched down, exactly compensated at assumed sink; resource headroom, SOC, and 8760h feasibility not verified"
-2050,distributed_MG_load,0.7,True,5463.513866480274,0.5440281181036231,0.0,"Existing new PV/wind dispatched down, exactly compensated at assumed sink; resource headroom, SOC, and 8760h feasibility not verified"
-2050,distributed_MG_load,0.9,True,8047.143847920945,0.6373301437946967,0.0,"Existing new PV/wind dispatched down, exactly compensated at assumed sink; resource headroom, SOC, and 8760h feasibility not verified"
+2050,distributed_MG_load,0.35,True,942.1613989596525,0.17063960406475576,0.0,"Existing new PV/wind dispatched down, exactly compensated at assumed sink; resource headroom, SOC, and 8760h feasibility not verified"
+2050,distributed_MG_load,0.7,True,5463.513866479546,0.5440281181035506,0.0,"Existing new PV/wind dispatched down, exactly compensated at assumed sink; resource headroom, SOC, and 8760h feasibility not verified"
+2050,distributed_MG_load,0.9,True,8047.143847920312,0.6373301437946466,2.842170943040401e-14,"Existing new PV/wind dispatched down, exactly compensated at assumed sink; resource headroom, SOC, and 8760h feasibility not verified"
