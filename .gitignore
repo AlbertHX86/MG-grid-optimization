@@ -26,3 +26,13 @@ MG-grid-optimization_COMPLETE_HANDOFF_*.zip
 
 # Symlink created by run_regional_comparison.sh
 regional_comparison/MG_Step2_Congestion_Relief
+
+# Planning study: intermediate adequacy part files (merged into results/) and LaTeX build files
+planning_study/results/adequacy_parts/
+planning_study/report/*.aux
+planning_study/report/*.bbl
+planning_study/report/*.blg
+planning_study/report/*.fdb_latexmk
+planning_study/report/*.fls
+planning_study/report/*.out
+planning_study/report/*.synctex.gz

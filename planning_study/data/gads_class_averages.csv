@@ -1,0 +1,8 @@
+gads_category,model_class,units,unit_years,EFORd_pct,EFOR_pct,FOH_per_unit_year,forced_outages_per_unit_year,mean_forced_outage_h,source
+HYDRO 30 Plus,hydro_30plus,658,2756.0000,4.2900,5.1900,310.5200,2.6000,119.4308,"NERC GADS Generating Unit Statistical Brochure 4, 2016-2020, All Units Reporting (nerc.com, retrieved 2026-11-12)"
+HYDRO 001-029,hydro_1_29,402,1676.0000,14.3700,16.1500,1021.8700,4.9800,205.1948,"NERC GADS Generating Unit Statistical Brochure 4, 2016-2020, All Units Reporting (nerc.com, retrieved 2026-11-12)"
+COMBINED CYCLE All Sizes,combined_cycle,345,1420.0800,3.8700,5.0100,204.9400,5.5100,37.1942,"NERC GADS Generating Unit Statistical Brochure 4, 2016-2020, All Units Reporting (nerc.com, retrieved 2026-11-12)"
+GAS TURBINE 50 Plus,gas_turbine_50plus,459,2059.0000,9.2700,37.8900,300.0400,4.1700,71.9520,"NERC GADS Generating Unit Statistical Brochure 4, 2016-2020, All Units Reporting (nerc.com, retrieved 2026-11-12)"
+DIESEL All Sizes,diesel_ic,151,657.1700,7.9200,25.3000,225.8900,6.4800,34.8596,"NERC GADS Generating Unit Statistical Brochure 4, 2016-2020, All Units Reporting (nerc.com, retrieved 2026-11-12)"
+PUMPED STORAGE All Sizes,pumped_storage,111,544.0000,4.6900,6.6100,269.5600,2.8100,95.9288,"NERC GADS Generating Unit Statistical Brochure 4, 2016-2020, All Units Reporting (nerc.com, retrieved 2026-11-12)"
+HYDRO All Sizes,hydro_all,1060,4432.0000,8.0400,9.4900,579.5200,3.5000,165.5771,"NERC GADS Generating Unit Statistical Brochure 4, 2016-2020, All Units Reporting (nerc.com, retrieved 2026-11-12)"
