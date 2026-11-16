@@ -154,12 +154,7 @@ def deliverability():
     num('nbridges', info['radial_outages_skipped']); num('headroomP', info['energy_headroom_mw']['P_prorata'])
     num('headroomAone', info['energy_headroom_mw']['A1_mg_backdown']); num('headroomAtwo', info['energy_headroom_mw']['A2_displace_inflow'])
     num('growthMW', info['load_growth_2050_mw_at_pwf_scale'])
-    s = info['subset']
-    for k in ('pairs', 'elements', 'groups', 'rows_full', 'cases', 'cases_alpha_lt1', 'in_sample_exact_alpha_lt1',
-              'out_of_sample_cases', 'out_of_sample_cases_alpha_lt1', 'out_of_sample_exact_alpha_lt1', 'in_sample_same_verdict',
-              'out_of_sample_same_verdict', 'out_of_sample_pairs'):
-        num('subset' + k, s[k])
-    num('subsetpct', 100 * s['pairs'] / s['rows_full'], 1)
+    num('rowsfull', info['monitored_rows'])
     m = chk[(chk.siting == 'reference') & chk.main & (chk['mode'] == 'circle') & chk.condition.isin(ORDER)].copy()
     m['cond'] = m.condition.map(SHORT); m['ord'] = m.condition.map({c: i for i, c in enumerate(ORDER)})
     m = m.sort_values(['year', 'ord'])

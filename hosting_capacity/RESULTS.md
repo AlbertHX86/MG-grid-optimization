@@ -164,10 +164,6 @@ The PWF snapshot has all 106 existing PV buses at 0 MW (an evening case). Here t
 | CONSE. PENA | 230 | Aimorés | 338 | 344 | 337 | 339 | 338 | GVALA6-MG230-CPENA--MG230 (line) | N-0 |
 | AIMORES-SE | 230 | Aimorés | 315 | 320 | 314 | 315 | 315 | CPENA--MG230-AIMORE-MG230 (line) | N-0 |
 
-## Constraint subset for the production-cost run
-
-Rows (element, contingency) loaded ≥ 90% of their limit at full study output in any of the 220 circle-mode cases: 8,393 of 242,708 rows (3.5%), 66 elements in 30 groups. In-sample: α identical in 106 of 106 cases with α < 1 and the same deliverable/not verdict in 220 of 220 cases. Out of sample (subset from the reference siting only, 6,729 rows, tested on the other 160 cases): α identical in 71 of 71 cases with α < 1, same verdict in 160 of 160. Any solution built on the subset is re-checked on all rows.
-
 ## Not covered here
 
 - **No midday base case.** The PWF is an evening snapshot (existing PV at 0 MW). The main tables add only the NEW resources to it; midday conclusions are conditional on the base case (see the existing-PV sensitivity).
