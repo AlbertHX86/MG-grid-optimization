@@ -241,6 +241,24 @@ class Problem:
         self.lp_total = {t: cap.get(t, 0.0) / 1000 for t in pp.TECH}
         self.months = None
 
+    def voll_mix(self):
+        """Statewide mix and seasonal storage profile of the one-bus LP with unserved energy at VOLL."""
+        if not hasattr(self, '_voll'):
+            case = self.case; d = pp.lp_inputs(case); n = pp.build(case, d)
+            lm = float(d['load'].max())
+            n.add('Generator', 'shed', bus='MG', p_nom=lm, p_max_pu=pd.Series(d['load'] / lm, n.snapshots), marginal_cost=js.VOLL)
+            st, cond = n.optimize(solver_name='highs', extra_functionality=pp.extra(case, d), include_objective_constant=False,
+                                  solver_options={'output_flag': False, 'primal_feasibility_tolerance': 1e-7,
+                                                  'dual_feasibility_tolerance': 1e-7})
+            assert st == 'ok', cond
+            tot = {t: float(n.generators.at[t, 'p_nom_opt']) for t in pp.CF_TECH + ['biogas']}
+            tot['bess'] = float(n.storage_units.at['bess', 'p_nom_opt'])
+            E = tot['bess'] * d['dur']
+            frac = n.storage_units_t.state_of_charge['bess'].to_numpy() / E if E > 0 else np.zeros(8760)
+            starts = [int(np.flatnonzero(d['month'] == m)[0]) for m in range(1, 13)]
+            self._voll = (tot, np.array([frac[s - 1] if s > 0 else frac[-1] for s in starts]), float(n.objective))
+        return self._voll
+
     def check(self, inj):
         """All rows, every hour of `inj` (patterns x hours). Same rule as joint_siting.Joint.check."""
         return js.Joint.check(self, inj)
@@ -259,12 +277,18 @@ class Problem:
         return np.array(phis), G, info
 
     def soc_fraction(self):
-        """State-of-charge fraction entering each month in the annual one-bus dispatch of the LP portfolio."""
+        """State-of-charge fraction entering each month in the annual one-bus dispatch of the LP portfolio
+        (or of the one-bus VOLL mix when self.mix == 'voll')."""
+        if getattr(self, 'mix', 'lp') == 'voll':
+            return self.voll_mix()[1]
         if not hasattr(self, '_f'):
             frac, _ = pcm.annual_soc(self.year)
             starts = [int(np.flatnonzero(self.d['month'] == m)[0]) for m in range(1, 13)]
             self._f = np.array([frac[s - 1] if s > 0 else frac[-1] for s in starts])
         return self._f
+
+    def totals(self):
+        return self.voll_mix()[0] if getattr(self, 'mix', 'lp') == 'voll' else self.lp_total
 
     def soc_seed(self, x):
         return np.outer(x[self.sidx] * self.d['dur'], self.soc_fraction())
@@ -300,13 +324,13 @@ class Master:
             if not cols:
                 continue
             if fix_totals:
-                v = max(0.0, P.lp_total.get(t, 0.0)); row(cols, np.ones(len(cols)), v, v)
+                v = max(0.0, P.totals().get(t, 0.0)); row(cols, np.ones(len(cols)), v, v)
             else:
                 lo = d['floor'][t]; hi = d['ceil'][t]
                 if lo > 0 or np.isfinite(hi):
                     row(cols, np.ones(len(cols)), lo, hi if np.isfinite(hi) else np.inf)
         if fix_totals:
-            v = P.lp_total['solar_distributed']; h.changeColBounds(dg, v, v); self.lb0[dg] = self.ub0[dg] = v
+            v = P.totals()['solar_distributed']; h.changeColBounds(dg, v, v); self.lb0[dg] = self.ub0[dg] = v
         if area_caps:
             for (t, a), g in P.cand[np.isfinite(P.cand.area_cap_mw)].groupby(['tech', 'area']):
                 cols = [names.index(n) for n in g.name]
@@ -372,6 +396,7 @@ def benders(P: Problem, label, network=True, area_caps=True, fix_totals=False, s
     queue = [(np.asarray(s, float), P.soc_seed(np.asarray(s, float))) for s in seeds]
     delta = DELTA0; t0 = time.time()
     for it in range(max_it):
+        seed = bool(queue)
         if queue:
             x, e = queue.pop(0)
         else:
@@ -385,8 +410,9 @@ def benders(P: Problem, label, network=True, area_caps=True, fix_totals=False, s
         serious = best is None or ub < best['ub'] - 1e-9
         if serious:
             best = {'x': x, 'e': e, 'ub': ub, 'phis': phis, 'info': info, 'it': it}
-            delta = min(0.5, delta * 1.5) if it > len(seeds) else delta
-        else:
+            if not seed:
+                delta = min(0.5, delta * 1.5)
+        elif not seed:                                  # seed evaluations never shrink the trust region
             delta = max(0.005, delta * 0.5)
         gap = (best['ub'] - lb) / abs(best['ub'])
         shed = sum(i['shed_gwh'] for i in info)
@@ -439,6 +465,7 @@ CASES = {  # label: (network, area caps, fix statewide totals at the LP mix, uns
     'joint': (True, True, False, 'lp', True, ('prev', 'ref', 'ref_bess_load')),   # 'prev' = best of the previous case
     'joint_uncapped': (True, False, False, 'lp', True, ('prev', 'ref', 'ref_bess_load')),
     'joint_voll': (True, True, False, 'voll', True, ('prev', 'ref', 'ref_bess_load')),
+    'siting_voll': (True, True, True, 'voll', True, ('lp_siting', 'ref')),   # mix fixed at the one-bus VOLL optimum
 }
 
 
@@ -449,7 +476,19 @@ def seeds_of(P, keys):
             if getattr(P, 'prev_best', None) is not None:
                 out.append(P.prev_best.copy())
             continue
-        x = P.ref.copy()
+        if k == 'lp_siting':                           # the LP-mix siting optimum, from its committed result
+            f = OUT / f'{P.year}_siting_sites.csv'
+            S = pd.read_csv(f).set_index('name').capacity_mw / 1000
+            base = np.array([float(S.get(n, 0.0)) for n in P.names])
+        else:
+            base = P.ref
+        x = base.copy()
+        tot = P.totals()
+        for t in set(P.tech.values()):                 # scale the reference allocation to the case's totals
+            cols = [i for i, n in enumerate(P.names) if P.tech[n] == t]
+            r = float(base[cols].sum())
+            if r > 1e-9:
+                x[cols] *= max(0.0, tot.get(t, 0.0)) / r
         if k == 'ref_bess_load':
             b = [i for i, n in enumerate(P.names) if P.tech[n] == 'bess']
             tot = float(x[b].sum()); x[b] = 0.0; x[P.names.index('bess@load')] = tot
@@ -467,6 +506,7 @@ def main(argv=None):
     for c in a.cases:
         network, caps, fixt, shed, site, seeds = CASES[c]
         label = f'{a.year}_{c}'
+        P.mix = 'voll' if c == 'siting_voll' else 'lp'
         print(f'CASE {label}', flush=True)
         best, hist = benders(P, label, network=network, area_caps=caps, fix_totals=fixt, shed=shed, site_cost=site,
                              seeds=seeds_of(P, seeds), max_it=1 if c == 'sequential' else MAX_IT)

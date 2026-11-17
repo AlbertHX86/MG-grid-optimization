@@ -1,0 +1,72 @@
+case,tech,area,rank,bus_id,station,kv,extra_conn_brl_kw,area_cap_mw,name,capacity_mw
+2050_siting_voll,solar_central,Arinos,0,39813,ARINOS 2,500,0.000000,5813.167458,solar_central@Arinos@39813,2002.246482
+2050_siting_voll,solar_central,Arinos,1,1523,PARACATU 4,500,593.018451,5813.167458,solar_central@Arinos@1523,0.000000
+2050_siting_voll,solar_central,Arinos,2,1525,PIRAPORA 2,500,711.925320,5813.167458,solar_central@Arinos@1525,0.000000
+2050_siting_voll,solar_central,Janauba,0,38900,JANAUBA 3,500,0.000000,4262.989469,solar_central@Janauba@38900,2841.992980
+2050_siting_voll,solar_central,Janauba,1,38929,JANAUBA 6,500,137.450847,4262.989469,solar_central@Janauba@38929,0.000000
+2050_siting_voll,solar_central,Janauba,2,38911,JAIBA,500,207.986319,4262.989469,solar_central@Janauba@38911,0.000000
+2050_siting_voll,solar_central,Jaiba,0,38911,JAIBA,500,0.000000,3100.355978,solar_central@Jaiba@38911,2066.903985
+2050_siting_voll,solar_central,Jaiba,1,38900,JANAUBA 3,500,262.306618,3100.355978,solar_central@Jaiba@38900,0.000000
+2050_siting_voll,solar_central,Jaiba,2,38929,JANAUBA 6,500,329.606387,3100.355978,solar_central@Jaiba@38929,0.000000
+2050_siting_voll,solar_central,Pirapora,0,1524,PIRAPORA 2,345,0.000000,2325.266983,solar_central@Pirapora@1524,1255.226572
+2050_siting_voll,solar_central,Pirapora,1,1519,VARZEA PALMA1,345,115.941989,2325.266983,solar_central@Pirapora@1519,0.000000
+2050_siting_voll,solar_central,Pirapora,2,26700,VARZEA PALMA 4,345,138.692684,2325.266983,solar_central@Pirapora@26700,0.000000
+2050_siting_voll,solar_central,Paracatu,0,1523,PARACATU 4,500,0.000000,2131.494735,solar_central@Paracatu@1523,1420.996490
+2050_siting_voll,solar_central,Paracatu,1,1509,EMBORCACAO,500,574.968208,2131.494735,solar_central@Paracatu@1509,0.000000
+2050_siting_voll,solar_central,Paracatu,2,39813,ARINOS 2,500,616.405024,2131.494735,solar_central@Paracatu@39813,0.000000
+2050_siting_voll,solar_central,Montes Claros,0,1493,MONTESCLAROS2,345,0.000000,1743.950237,solar_central@Montes Claros@1493,1162.633492
+2050_siting_voll,solar_central,Montes Claros,1,38929,JANAUBA 6,500,224.495145,1743.950237,solar_central@Montes Claros@38929,0.000000
+2050_siting_voll,solar_central,Montes Claros,2,38900,JANAUBA 3,500,364.580667,1743.950237,solar_central@Montes Claros@38900,0.000000
+2050_siting_voll,bio,Frutal,0,3842,P. COLOMBIA,345,22.909077,460.425000,bio@Frutal@3842,0.000000
+2050_siting_voll,bio,Frutal,1,4598,MARIMBONDO II,500,0.000000,460.425000,bio@Frutal@4598,306.950000
+2050_siting_voll,bio,Frutal,2,3854,MARIMBONDO,345,32.427347,460.425000,bio@Frutal@3854,0.000000
+2050_siting_voll,bio,Ituiutaba,0,38902,MONTE ALEGRE2,345,0.000000,460.425000,bio@Ituiutaba@38902,306.950000
+2050_siting_voll,bio,Ituiutaba,1,3862,ITUMBIARA,230,122.531527,460.425000,bio@Ituiutaba@3862,0.000000
+2050_siting_voll,bio,Ituiutaba,2,1514,SAO SIMAO-SE,500,152.682790,460.425000,bio@Ituiutaba@1514,0.000000
+2050_siting_voll,bio,Paracatu,0,1523,PARACATU 4,500,0.000000,394.650000,bio@Paracatu@1523,263.100000
+2050_siting_voll,bio,Paracatu,1,1509,EMBORCACAO,500,574.968208,394.650000,bio@Paracatu@1509,0.000000
+2050_siting_voll,bio,Paracatu,2,39813,ARINOS 2,500,616.405024,394.650000,bio@Paracatu@39813,0.000000
+2050_siting_voll,small_hydro,Aimorés,0,1637,AIMORES-SE,230,0.000000,201.300000,small_hydro@Aimorés@1637,134.200000
+2050_siting_voll,small_hydro,Aimorés,1,1616,CONSE. PENA,230,231.306921,201.300000,small_hydro@Aimorés@1616,0.000000
+2050_siting_voll,small_hydro,Aimorés,2,38974,MUTUM,500,171.665610,201.300000,small_hydro@Aimorés@38974,0.000000
+2050_siting_voll,small_hydro,Pirapora,0,1524,PIRAPORA 2,345,0.000000,301.950000,small_hydro@Pirapora@1524,201.300000
+2050_siting_voll,small_hydro,Pirapora,1,1519,VARZEA PALMA1,345,115.941989,301.950000,small_hydro@Pirapora@1519,0.000000
+2050_siting_voll,small_hydro,Pirapora,2,26700,VARZEA PALMA 4,345,138.692684,301.950000,small_hydro@Pirapora@26700,0.000000
+2050_siting_voll,small_hydro,Diamantina,0,26470,P. JUSCELINO,345,0.000000,251.625000,small_hydro@Diamantina@26470,167.750000
+2050_siting_voll,small_hydro,Diamantina,1,26700,VARZEA PALMA 4,345,247.699344,251.625000,small_hydro@Diamantina@26700,0.000000
+2050_siting_voll,small_hydro,Diamantina,2,1519,VARZEA PALMA1,345,278.829535,251.625000,small_hydro@Diamantina@1519,0.000000
+2050_siting_voll,small_hydro,Paracatu,0,1523,PARACATU 4,500,0.000000,251.625000,small_hydro@Paracatu@1523,167.750000
+2050_siting_voll,small_hydro,Paracatu,1,1509,EMBORCACAO,500,574.968208,251.625000,small_hydro@Paracatu@1509,0.000000
+2050_siting_voll,small_hydro,Paracatu,2,39813,ARINOS 2,500,616.405024,251.625000,small_hydro@Paracatu@39813,0.000000
+2050_siting_voll,wind_site,Janauba,0,38900,JANAUBA 3,500,0.000000,1500.000000,wind_site@Janauba@38900,1500.000000
+2050_siting_voll,wind_site,Janauba,1,38929,JANAUBA 6,500,137.450847,1500.000000,wind_site@Janauba@38929,0.000000
+2050_siting_voll,wind_site,Janauba,2,38911,JAIBA,500,207.986319,1500.000000,wind_site@Janauba@38911,0.000000
+2050_siting_voll,wind_site,Grao Mogol,0,1510,IRAPE-SE,345,0.000000,1500.000000,wind_site@Grao Mogol@1510,500.000000
+2050_siting_voll,wind_site,Grao Mogol,1,38900,JANAUBA 3,500,147.658147,1500.000000,wind_site@Grao Mogol@38900,0.000000
+2050_siting_voll,wind_site,Grao Mogol,2,38929,JANAUBA 6,500,149.737467,1500.000000,wind_site@Grao Mogol@38929,0.000000
+2050_siting_voll,biogas,Frutal,0,3842,P. COLOMBIA,345,22.909077,300.000000,biogas@Frutal@3842,0.000000
+2050_siting_voll,biogas,Frutal,1,4598,MARIMBONDO II,500,0.000000,300.000000,biogas@Frutal@4598,200.000000
+2050_siting_voll,biogas,Frutal,2,3854,MARIMBONDO,345,32.427347,300.000000,biogas@Frutal@3854,0.000000
+2050_siting_voll,biogas,Ituiutaba,0,38902,MONTE ALEGRE2,345,0.000000,180.000000,biogas@Ituiutaba@38902,120.000000
+2050_siting_voll,biogas,Ituiutaba,1,3862,ITUMBIARA,230,122.531527,180.000000,biogas@Ituiutaba@3862,0.000000
+2050_siting_voll,biogas,Ituiutaba,2,1514,SAO SIMAO-SE,500,152.682790,180.000000,biogas@Ituiutaba@1514,0.000000
+2050_siting_voll,biogas,Paracatu,0,1523,PARACATU 4,500,0.000000,120.000000,biogas@Paracatu@1523,80.000000
+2050_siting_voll,biogas,Paracatu,1,1509,EMBORCACAO,500,574.968208,120.000000,biogas@Paracatu@1509,0.000000
+2050_siting_voll,biogas,Paracatu,2,39813,ARINOS 2,500,616.405024,120.000000,biogas@Paracatu@39813,0.000000
+2050_siting_voll,bess,Montes Claros,0,1493,MONTESCLAROS2,345,7.252887,inf,bess@Montes Claros@1493,0.000000
+2050_siting_voll,bess,Montes Claros,1,38929,JANAUBA 6,500,0.000000,inf,bess@Montes Claros@38929,967.851481
+2050_siting_voll,bess,Montes Claros,2,1708,JANAUBA 3,230,18.257054,inf,bess@Montes Claros@1708,0.000000
+2050_siting_voll,bess,Uberaba,0,1517,VOLTA GRANDE-SE,345,7.252887,inf,bess@Uberaba@1517,0.000000
+2050_siting_voll,bess,Uberaba,1,38932,NOVA PONTE 3,500,0.000000,inf,bess@Uberaba@38932,507.716090
+2050_siting_voll,bess,Uberaba,2,26504,JAGUARA-500,345,7.252887,inf,bess@Uberaba@26504,0.000000
+2050_siting_voll,bess,Janauba,0,1708,JANAUBA 3,230,18.257054,inf,bess@Janauba@1708,0.000000
+2050_siting_voll,bess,Janauba,1,38929,JANAUBA 6,500,0.000000,inf,bess@Janauba@38929,341.944924
+2050_siting_voll,bess,Janauba,2,38971,JAIBA,230,18.257054,inf,bess@Janauba@38971,0.000000
+2050_siting_voll,wind,Janauba,0,38900,JANAUBA 3,500,0.000000,inf,wind@Janauba@38900,0.000000
+2050_siting_voll,wind,Janauba,1,38929,JANAUBA 6,500,137.450847,inf,wind@Janauba@38929,0.000000
+2050_siting_voll,wind,Janauba,2,38911,JAIBA,500,207.986319,inf,wind@Janauba@38911,0.000000
+2050_siting_voll,wind,Grao Mogol,0,1510,IRAPE-SE,345,0.000000,inf,wind@Grao Mogol@1510,0.000000
+2050_siting_voll,wind,Grao Mogol,1,38900,JANAUBA 3,500,147.658147,inf,wind@Grao Mogol@38900,0.000000
+2050_siting_voll,wind,Grao Mogol,2,38929,JANAUBA 6,500,149.737467,inf,wind@Grao Mogol@38929,0.000000
+2050_siting_voll,solar_distributed,MG load buses,-1,-1,load buses pro rata,-1,0.000000,inf,solar_distributed,7944.000000
+2050_siting_voll,bess,MG load buses,-1,-1,load buses pro rata,-1,0.000000,inf,bess@load,1980.698849
