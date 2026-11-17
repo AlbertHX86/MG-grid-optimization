@@ -36,3 +36,5 @@ planning_study/report/*.fdb_latexmk
 planning_study/report/*.fls
 planning_study/report/*.out
 planning_study/report/*.synctex.gz
+# Phase 6: hourly joint-siting dispatch (hourly series are not committed)
+planning_study/results/joint_parts/
