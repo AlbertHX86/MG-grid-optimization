@@ -13,10 +13,14 @@ sites with identical profiles plus thousands of dense flow cuts stall the simple
   violated in any hour of the month. phi_m(P) is its weighted operating cost and the reduced costs of the fixed
   capacity columns are a subgradient, so theta_m >= phi_m(P*) + g_m (P - P*) is a valid cut.
 
-Every iterate is evaluated with complete flow cuts (all rows, all hours), so its total cost is a valid upper bound;
-the master without the trust region gives the lower bound. Differences from the annual LP, both small and measured
-by the copper-plate gate (which must return the one-bus LP objective): storage is cyclic within each month (a
-restriction) and the first hour of each month has no ramp limit relative to the previous month (a relaxation).
+Storage is cyclic over the year: month m starts from the state of charge e_m and must end at e_{m+1} (fixed columns,
+so their reduced costs are subgradients too). The boundary states follow the seasonal profile of the one-bus LP's
+own dispatch, scaled to each unit's energy capacity (e_m = f_m x duration x power, as in the production-cost step);
+with free boundary states the steep unserved-energy penalty makes the master swing. The LP's own solution satisfies
+this rule, so the copper-plate gate is unaffected. Every iterate is evaluated with complete flow cuts (all rows, all hours), so its
+total cost is a valid upper bound; the master without the trust region gives the lower bound. The only difference
+from the annual LP is that the first hour of each month has no ramp limit relative to the previous month (a
+relaxation); the copper-plate gate (which must return the one-bus LP objective) measures it.
 """
 from __future__ import annotations
 import argparse
@@ -40,7 +44,8 @@ from joint_siting import pp, pcm, Network  # noqa: E402
 OUT = js.OUT / 'joint_benders'
 TOL_GAP = float(os.environ.get('BENDERS_GAP', 1e-5))       # relative gap (about R$ 0.2 M)
 MAX_IT = int(os.environ.get('BENDERS_MAX_IT', 60))
-DELTA0 = 2.0                                                # GW, initial trust-region half-width
+DELTA0 = 0.10                                               # trust region: relative change of each technology's total
+DELTA_SITE = 0.25                                           # and +- this (GW) per station, plus the same relative change
 
 
 # ------------------------------------------------------------------ subproblem
@@ -86,7 +91,8 @@ class Month:
         n.add('Generator', 'shed', bus='MG', p_nom=lm, p_max_pu=pd.Series(d['load'][idx] / lm, sn), marginal_cost=js.LP_SHED)
         gens['shed'] = 'load'
         kw = dict(bus='MG', max_hours=d['dur'], efficiency_store=d['eta'], efficiency_dispatch=d['eta'],
-                  cyclic_state_of_charge=True, marginal_cost=0.001, p_nom_extendable=True, capital_cost=0.0)
+                  cyclic_state_of_charge=False, state_of_charge_initial=0.0, marginal_cost=0.001,
+                  p_nom_extendable=True, capital_cost=0.0)
         for r in P.cand[P.cand.tech == 'bess'].itertuples(index=False):
             n.add('StorageUnit', r.name, **kw); stores[r.name] = f'bus{int(r.bus_id)}'
         n.add('StorageUnit', 'bess@load', **kw); stores['bess@load'] = 'load'
@@ -129,17 +135,35 @@ class Month:
         assert set(self.cap_col) == set(self.P.names), set(self.cap_col) ^ set(self.P.names)
         self.cap_idx = np.array([self.cap_col[k] for k in self.P.names], np.int32)
         self.shed_cols = self.colP[self.gn.index('shed')].astype(np.int32)
+        # month-boundary state of charge: e0 enters the first hour's balance like soc_{t-1} (PyPSA writes
+        # -soc_t - pd/eta + eta*ps + soc_{t-1} = -soc_initial); e1 = soc at the last hour
+        rl = np.asarray(M.clabels)
+        rowmap = np.full(int(rl.max()) + 1, -1, dtype=np.int64); rowmap[rl] = np.arange(len(rl))
+        eb = m.constraints['StorageUnit-energy_balance']; socv = m.variables['StorageUnit-state_of_charge']
+        t0s, t1s = m.variables['Generator-p'].labels.coords['snapshot'].values[[0, -1]]
+        self.e0_idx, self.e1_idx = [], []
+        for x in self.P.snames:
+            r0 = int(rowmap[int(eb.labels.sel(snapshot=t0s, name=x))])
+            c_last = int(colmap[int(socv.labels.sel(snapshot=t1s, name=x))])
+            nc = h.getNumCol()
+            h.addCol(0.0, 0.0, np.inf, 1, np.array([r0], np.int32), np.array([1.0])); self.e0_idx.append(nc)
+            h.addCol(0.0, 0.0, np.inf, 0, np.array([], np.int32), np.array([])); self.e1_idx.append(nc + 1)
+            h.addRow(0.0, 0.0, 2, np.array([c_last, nc + 1], np.int32), np.array([1.0, -1.0]))
+        self.e0_idx = np.array(self.e0_idx, np.int32); self.e1_idx = np.array(self.e1_idx, np.int32)
         self.cst = self.P.cst[:, self.idx]
         self.pairs = {}; self.n_pairs = 0
 
     def set_shed_price(self, price):
         self.h.changeColsCost(len(self.shed_cols), self.shed_cols, np.full(len(self.shed_cols), self.P.d['w'] * price))
 
-    def evaluate(self, x: np.ndarray, network: bool, max_rounds=60):
-        """phi(x), subgradient, unserved GWh, flow-cut rounds. x: capacities (GW) in Problem.names order."""
+    def evaluate(self, x: np.ndarray, e0: np.ndarray, e1: np.ndarray, network: bool, max_rounds=60):
+        """phi, subgradients wrt capacities and boundary states. x: capacities (GW) in Problem.names order;
+        e0, e1: state of charge (GWh) entering and leaving the month, Problem.snames order."""
         import highspy
         h = self.h
         h.changeColsBounds(len(self.cap_idx), self.cap_idx, x, x)
+        h.changeColsBounds(len(self.e0_idx), self.e0_idx, e0, e0)
+        h.changeColsBounds(len(self.e1_idx), self.e1_idx, e1, e1)
         rounds, t0 = 0, time.time()
         while True:
             h.run()
@@ -158,7 +182,8 @@ class Month:
             self.add_cuts(R, T, S); rounds += 1
             assert rounds <= max_rounds, f'month {self.month}: flow cuts did not converge'
         phi = float(h.getInfo().objective_function_value)
-        g = np.asarray(sol.col_dual)[self.cap_idx]
+        rc = np.asarray(sol.col_dual)
+        g = (rc[self.cap_idx], rc[self.e0_idx], rc[self.e1_idx])
         self.last = {'shed_gwh': float(xv[self.shed_cols].sum()), 'rounds': rounds, 'seconds': time.time() - t0,
                      'x': xv}
         return phi, g
@@ -200,6 +225,8 @@ class Problem:
         self.grid = pcm.Grid(self.net, cand.assign(bus_id=cand.bus_id.astype(int)), bess_at_load=True)
         self.cst = pcm.constants(self.grid, d, self.ex, pcm.references(), np.arange(8760))
         self.names = list(cand.name) + ['solar_distributed', 'bess@load']
+        self.snames = list(cand.name[cand.tech == 'bess']) + ['bess@load']
+        self.sidx = np.array([self.names.index(k) for k in self.snames])
         self.tech = {k: (k.split('@')[0] if '@' in k else k) for k in self.names}
         self.cost_site = np.array([d['capcoef'][self.tech[k]] + (js.extra_coef(self.tech[k], float(cand.set_index('name').at[k, 'extra_conn_brl_kw']), d, year)
                                    if k in set(cand.name) else 0.0) for k in self.names])
@@ -223,13 +250,24 @@ class Problem:
         self.months = [Month(self, m) for m in range(1, 13)]
         print(f'  {self.year}: 12 monthly models built in {time.time() - t0:.0f} s', flush=True)
 
-    def evaluate(self, x, network):
-        tot, G, info = 0.0, [], []
-        phis = []
-        for M in self.months:
-            phi, g = M.evaluate(x, network)
+    def evaluate(self, x, e, network):
+        """e: (storage units x 12) state of charge entering each month (GWh); month 12 ends at e[:, 0]."""
+        G, info, phis = [], [], []
+        for k, M in enumerate(self.months):
+            phi, g = M.evaluate(x, e[:, k], e[:, (k + 1) % 12], network)
             phis.append(phi); G.append(g); info.append(M.last)
-        return np.array(phis), np.array(G), info
+        return np.array(phis), G, info
+
+    def soc_fraction(self):
+        """State-of-charge fraction entering each month in the annual one-bus dispatch of the LP portfolio."""
+        if not hasattr(self, '_f'):
+            frac, _ = pcm.annual_soc(self.year)
+            starts = [int(np.flatnonzero(self.d['month'] == m)[0]) for m in range(1, 13)]
+            self._f = np.array([frac[s - 1] if s > 0 else frac[-1] for s in starts])
+        return self._f
+
+    def soc_seed(self, x):
+        return np.outer(x[self.sidx] * self.d['dur'], self.soc_fraction())
 
 
 class Master:
@@ -243,8 +281,10 @@ class Master:
         groups += [('bess|load', [names.index('bess@load')])]
         self.ng = len(groups)
         h = highspy.Highs(); h.setOptionValue('output_flag', False)
-        nv = nx + self.ng + 12
+        ns = len(P.snames)
+        nv = nx + self.ng + 12 + ns * 12
         self.ix, self.idev, self.ith = np.arange(nx), nx + np.arange(self.ng), nx + self.ng + np.arange(12)
+        self.ie = (nx + self.ng + 12 + np.arange(ns * 12)).reshape(ns, 12)        # boundary state of charge
         lb = np.zeros(nv); ub = np.full(nv, np.inf)
         dg = names.index('solar_distributed')
         lb[dg] = d['floor']['solar_distributed']; ub[dg] = d['ceil']['solar_distributed']
@@ -275,25 +315,50 @@ class Master:
             r0 = float(P.ref[cols].sum())
             row(list(cols) + [self.idev[j]], np.r_[-np.ones(len(cols)), 1.0], -r0, np.inf)
             row(list(cols) + [self.idev[j]], np.r_[np.ones(len(cols)), 1.0], r0, np.inf)
+        f = P.soc_fraction()                           # e = f_m x duration x power (seasonal profile of the LP)
+        for i, j in enumerate(P.sidx):
+            for k in range(12):
+                row([self.ie[i, k], j], [1.0, -d['dur'] * f[k]], 0.0, 0.0)
+        self.dur = d['dur']
+        # technology totals (bounds set per solve for the trust region)
+        self.tot_rows, self.tot_cols = [], []
+        for t in sorted(set(P.tech.values())):
+            cols = [i for i, n in enumerate(names) if P.tech[n] == t]
+            self.tot_rows.append(h.getNumRow()); self.tot_cols.append(cols)
+            row(cols, np.ones(len(cols)), -np.inf, np.inf)
+        self.tot_rows = np.array(self.tot_rows, np.int32)
         self.h = h; self.ncuts = 0
 
-    def add_cut(self, m, phi, g, x):
-        cols = np.r_[self.ith[m], self.ix]; vals = np.r_[1.0, -g]
-        self.h.addRow(phi - float(g @ x), np.inf, len(cols), cols.astype(np.int32), vals)
+    def add_cut(self, m, phi, g, x, e):
+        gx, g0, g1 = g; k0, k1 = m, (m + 1) % 12
+        cols = np.r_[self.ith[m], self.ix, self.ie[:, k0], self.ie[:, k1]]
+        vals = np.r_[1.0, -gx, -g0, -g1]
+        rhs = phi - float(gx @ x) - float(g0 @ e[:, k0]) - float(g1 @ e[:, k1])
+        if k0 == k1:                                   # cannot happen with 12 months; kept for clarity
+            raise ValueError
+        self.h.addRow(rhs, np.inf, len(cols), cols.astype(np.int32), vals)
         self.ncuts += 1
 
     def solve(self, center=None, delta=None):
         import highspy
         h = self.h
         lb, ub = self.lb0.copy(), self.ub0.copy()
-        if center is not None:
-            lb[self.ix] = np.maximum(lb[self.ix], center - delta); ub[self.ix] = np.minimum(ub[self.ix], center + delta)
+        nt = len(self.tot_rows)
+        if center is not None:                         # trust region: technology totals +-delta, stations +-DELTA_SITE
+            cx, _ = center
+            hw = DELTA_SITE + delta * np.abs(cx)
+            lb[self.ix] = np.maximum(lb[self.ix], cx - hw); ub[self.ix] = np.minimum(ub[self.ix], cx + hw)
+            tots = np.array([cx[c].sum() for c in self.tot_cols])
+            hwt = np.maximum(0.02, delta * tots)
+            h.changeRowsBounds(nt, self.tot_rows, tots - hwt, tots + hwt)
+        else:
+            h.changeRowsBounds(nt, self.tot_rows, np.full(nt, -np.inf), np.full(nt, np.inf))
         h.changeColsBounds(len(lb), np.arange(len(lb), dtype=np.int32), lb, ub)
         h.run()
         st = h.getModelStatus()
         assert st == highspy.HighsModelStatus.kOptimal, h.modelStatusToString(st)
         v = np.asarray(h.getSolution().col_value)
-        return float(h.getInfo().objective_function_value), v[self.ix].copy(), v
+        return float(h.getInfo().objective_function_value), v[self.ix].copy(), v[self.ie].copy()
 
 
 def benders(P: Problem, label, network=True, area_caps=True, fix_totals=False, shed='lp', site_cost=True,
@@ -304,25 +369,25 @@ def benders(P: Problem, label, network=True, area_caps=True, fix_totals=False, s
     Ms = Master(P, cost, area_caps=area_caps, fix_totals=fix_totals)
     devs = lambda x: sum(abs(float(x[c].sum()) - float(P.ref[c].sum())) for c in _groups(P))
     hist, best = [], None
-    queue = [np.asarray(s, float) for s in seeds]
+    queue = [(np.asarray(s, float), P.soc_seed(np.asarray(s, float))) for s in seeds]
     delta = DELTA0; t0 = time.time()
     for it in range(max_it):
         if queue:
-            x = queue.pop(0)
+            x, e = queue.pop(0)
         else:
-            _, x, _ = Ms.solve(best['x'], delta)
-        x = np.maximum(x, 0.0)
-        phis, G, info = P.evaluate(x, network)
+            _, x, e = Ms.solve((best['x'], best['e']), delta)
+        x = np.maximum(x, 0.0); e = np.clip(e, 0.0, (x[P.sidx] * P.d['dur'])[:, None])
+        phis, G, info = P.evaluate(x, e, network)
         for m in range(12):
-            Ms.add_cut(m, phis[m], G[m], x)
+            Ms.add_cut(m, phis[m], G[m], x, e)
         ub = float(cost @ x) + js.TIE * devs(x) + float(phis.sum())
         lb, _, _ = Ms.solve()
         serious = best is None or ub < best['ub'] - 1e-9
         if serious:
-            best = {'x': x, 'ub': ub, 'phis': phis, 'info': info, 'it': it}
-            delta = min(4 * DELTA0, delta * 1.5) if it > len(seeds) else delta
+            best = {'x': x, 'e': e, 'ub': ub, 'phis': phis, 'info': info, 'it': it}
+            delta = min(0.5, delta * 1.5) if it > len(seeds) else delta
         else:
-            delta = max(0.02, delta * 0.5)
+            delta = max(0.005, delta * 0.5)
         gap = (best['ub'] - lb) / abs(best['ub'])
         shed = sum(i['shed_gwh'] for i in info)
         rec = {'case': label, 'iteration': it, 'ub_iterate_mbrl': ub, 'best_ub_mbrl': best['ub'], 'lb_mbrl': lb, 'gap': gap,
@@ -367,18 +432,23 @@ def report(P, label, best, hist, extra=None):
 
 
 CASES = {  # label: (network, area caps, fix statewide totals at the LP mix, unserved-energy price, site cost, seeds)
+    'copperplate_siting': (False, True, True, 'lp', True, ('ref',)),  # gate: must return the one-bus LP objective
     'copperplate': (False, True, False, 'lp', True, ('ref',)),
     'sequential': (True, True, True, 'lp', True, ('ref',)),          # one evaluation of the reference siting
     'siting': (True, True, True, 'lp', True, ('ref', 'ref_bess_load')),
-    'joint': (True, True, False, 'lp', True, ('ref', 'ref_bess_load')),
-    'joint_uncapped': (True, False, False, 'lp', True, ('ref', 'ref_bess_load')),
-    'joint_voll': (True, True, False, 'voll', True, ('ref', 'ref_bess_load')),
+    'joint': (True, True, False, 'lp', True, ('prev', 'ref', 'ref_bess_load')),   # 'prev' = best of the previous case
+    'joint_uncapped': (True, False, False, 'lp', True, ('prev', 'ref', 'ref_bess_load')),
+    'joint_voll': (True, True, False, 'voll', True, ('prev', 'ref', 'ref_bess_load')),
 }
 
 
 def seeds_of(P, keys):
     out = []
     for k in keys:
+        if k == 'prev':
+            if getattr(P, 'prev_best', None) is not None:
+                out.append(P.prev_best.copy())
+            continue
         x = P.ref.copy()
         if k == 'ref_bess_load':
             b = [i for i, n in enumerate(P.names) if P.tech[n] == 'bess']
@@ -390,7 +460,7 @@ def seeds_of(P, keys):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument('--year', type=int, required=True)
-    ap.add_argument('--cases', nargs='+', default=['copperplate', 'sequential', 'siting', 'joint'])
+    ap.add_argument('--cases', nargs='+', default=['copperplate_siting', 'sequential', 'siting', 'joint'])
     a = ap.parse_args(argv)
     OUT.mkdir(parents=True, exist_ok=True)
     P = Problem(a.year); P.build_months()
@@ -401,6 +471,8 @@ def main(argv=None):
         best, hist = benders(P, label, network=network, area_caps=caps, fix_totals=fixt, shed=shed, site_cost=site,
                              seeds=seeds_of(P, seeds), max_it=1 if c == 'sequential' else MAX_IT)
         out, sites = report(P, label, best, hist, extra={'network': network, 'area_caps': caps, 'fix_totals': fixt, 'shed': shed})
+        if network:
+            P.prev_best = best['x']
         pd.DataFrame([out]).to_csv(OUT / f'{label}_summary.csv', index=False, float_format='%.6f')
         sites.to_csv(OUT / f'{label}_sites.csv', index=False, float_format='%.6f')
         hist.to_csv(OUT / f'{label}_iterations.csv', index=False, float_format='%.6f')
