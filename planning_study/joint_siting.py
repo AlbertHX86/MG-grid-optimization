@@ -29,7 +29,10 @@ Siting (study assumptions):
   method's siting) keeps each area at its reference unless the network pays for a move.
 Network injections follow pcm.py: changes relative to the PWF snapshot (2035 LP hour 2349) are injected on
 their bus patterns; pre-existing overloads of the base case are reported, not constrained.
-Unserved energy (network runs and their copper-plate baseline) is priced at VOLL, R$ 8,327.76/MWh.
+Unserved energy is priced at the portfolio LP's own penalty (R$ 1,000,000/MWh), i.e. the main cases keep the LP's
+rule of serving all load; any unserved energy left is unavoidable on the existing grid and is valued ex post at VOLL
+(R$ 8,327.76/MWh, CCEE). Pricing it at VOLL inside the expansion changes the portfolio even without a network
+(2050: 297 GWh unserved, 2.2 GW less PV, 1.5 GW less BESS), so that is a labelled sensitivity ('network_voll').
 """
 from __future__ import annotations
 import argparse
@@ -59,7 +62,9 @@ OUT = HERE / 'results'
 PARTS = OUT / 'joint_parts'           # hourly dispatch (not committed)
 ALPHA = 1.5
 TIE = 0.1                             # M BRL per GW of area deviation from the reference allocation (tie-break)
-VOLL = pcm.VOLL / 1000.0              # M BRL per GWh
+VOLL = pcm.VOLL / 1000.0              # M BRL per GWh (ex-post valuation and the 'voll' sensitivity)
+LP_SHED = 1000.0                      # M BRL per GWh: the portfolio LP's own penalty (effectively no unserved energy)
+SHED_PRICE = {'lp': LP_SHED, 'voll': VOLL}
 TOL = 1e-3                            # MW, violation tolerance (as pcm.py)
 NEAR = 0.97                           # a violated row enters for every hour loaded >= 97% of its limit
 CHUNK = 4000                          # rows per flow-check block
@@ -71,6 +76,9 @@ if os.environ.get('JOINT_SOLVER', 'simplex') == 'ipm':
 else:
     SOLVER = {'solver': 'simplex', 'simplex_strategy': 1,
               'primal_feasibility_tolerance': 1e-7, 'dual_feasibility_tolerance': 1e-7}
+SOLVER['time_limit'] = float(os.environ.get('JOINT_TIME_LIMIT', 4 * 3600))    # per solve, seconds
+MAX_ROWS = 150                        # violated rows added per round (largest violation first), as pcm.py
+MAX_PAIRS = 200_000                   # and at most this many (row, hour) pairs per round (memory)
 SITED = ['solar_central', 'bio', 'small_hydro', 'wind_site', 'biogas', 'wind']
 
 
@@ -124,6 +132,14 @@ class Joint:
         self.cst = pcm.constants(self.grid, d, self.ex, self.ref, np.arange(8760))
         self.pairs = {}               # (row, sign) -> set of hours already constrained
         self.n_pairs = 0
+        self.cut_idx, self.cut_lo, self.cut_hi = [], [], []     # HiGHS rows of the flow cuts and their bounds
+        # Stations open at the start: the nearest and the cheapest of every (technology, area), and BESS at load.
+        # The others are priced after convergence and opened if their reduced cost is negative (column generation).
+        first = cand.groupby(['tech', 'area']).head(1).name
+        cheap = cand.loc[cand.extra_conn_brl_kw <= 1e-9].name
+        self.open = set(first) | set(cheap) | {'bess@load'}
+        if os.environ.get('JOINT_OPEN_ALL'):
+            self.open |= set(cand.name)
         self._build()
 
     def _build(self):
@@ -162,12 +178,10 @@ class Joint:
               p_nom_max=d['ceil']['solar_distributed'], capital_cost=d['capcoef']['solar_distributed'],
               p_max_pu=pd.Series(d['cf']['solar_distributed'], sn))
         gens['solar_distributed'] = 'load'
-        if True:                      # unserved energy (switched off by column bounds in the gate case)
-            lm = float(d['load'].max())
-            for i in range(pp.SHED_TRANCHES):
-                n.add('Generator', f'shed_{i:02d}', bus='MG', p_nom=lm, p_max_pu=pd.Series(d['load'] / lm / pp.SHED_TRANCHES, sn),
-                      marginal_cost=VOLL * (1 + 1e-4 * i))
-                gens[f'shed_{i:02d}'] = 'load'
+        # unserved energy at VOLL, one column per hour (switched off by column bounds in the gate case)
+        lm = float(d['load'].max())
+        n.add('Generator', 'shed', bus='MG', p_nom=lm, p_max_pu=pd.Series(d['load'] / lm, sn), marginal_cost=VOLL)
+        gens['shed'] = 'load'
         kw = dict(bus='MG', max_hours=d['dur'], efficiency_store=d['eta'], efficiency_dispatch=d['eta'],
                   cyclic_state_of_charge=True, marginal_cost=0.001, p_nom_extendable=True)
         for r in cand[cand.tech == 'bess'].itertuples(index=False):
@@ -270,7 +284,7 @@ class Joint:
         self.colPS = cols('StorageUnit-p_store')[iS]; self.colPD = cols('StorageUnit-p_dispatch')[iS]
         self.patg = np.array([self.grid.col[self.gens[g]] for g in self.gn])
         self.pats = np.array([self.grid.col[self.stores[x]] for x in self.sn_])
-        shed = [i for i, g in enumerate(self.gn) if g.startswith('shed_')]
+        shed = [i for i, g in enumerate(self.gn) if g == 'shed']
         self.shed_cols = self.colP[shed].ravel().astype(np.int32)
         self.shed_ub = np.asarray(lp.col_upper_)[self.shed_cols]
         # keep only the labels read back later, then free the PyPSA/linopy copy of the problem (memory)
@@ -285,17 +299,37 @@ class Joint:
         h = self.h
         z = np.zeros(len(self.shed_cols))
         h.changeColsBounds(len(self.shed_cols), self.shed_cols, z, self.shed_ub if shed else z)
+        if shed:                          # objective weight x price, as PyPSA writes marginal costs
+            h.changeColsCost(len(self.shed_cols), self.shed_cols, np.full(len(self.shed_cols), self.d['w'] * SHED_PRICE[shed]))
         cost = self.cost_site if site_cost else self.cost_base
         ks = [k for k in self.pnom_cols if k in cost]
         h.changeColsCost(len(ks), np.array([self.pnom_cols[k] for k in ks], np.int32), np.array([cost[k] for k in ks]))
         nr = len(self.area_rows)
         h.changeRowsBounds(nr, self.area_rows, np.full(nr, -np.inf), self.area_ub if area_caps else np.full(nr, np.inf))
-        ks = list(self.pnom_cols)
-        lb = np.array([self.ref_caps.get(k, 0.0) if fixed else self.pnom_lb0[k] for k in ks])
-        ub = np.array([self.ref_caps.get(k, 0.0) if fixed else self.pnom_ub0[k] for k in ks])
-        h.changeColsBounds(len(ks), np.array([self.pnom_cols[k] for k in ks], np.int32), lb, ub)
         self.network, self.shed, self.site_cost, self.area_caps, self.fixed = network, shed, site_cost, area_caps, fixed
         self.cap_cost = cost
+        self.apply_capacity_bounds()
+        if self.cut_idx:                  # flow cuts are active only in network cases
+            k = len(self.cut_idx); ix = np.array(self.cut_idx, np.int32)
+            lo = np.array(self.cut_lo) if network else np.full(k, -np.inf)
+            hi = np.array(self.cut_hi) if network else np.full(k, np.inf)
+            h.changeRowsBounds(k, ix, lo, hi)
+
+    def apply_capacity_bounds(self):
+        ks = list(self.pnom_cols)
+        closed = lambda k: k in self.cost_site and k not in self.open
+        lb = np.array([self.ref_caps.get(k, 0.0) if self.fixed else self.pnom_lb0[k] for k in ks])
+        ub = np.array([self.ref_caps.get(k, 0.0) if self.fixed else (0.0 if closed(k) else self.pnom_ub0[k]) for k in ks])
+        self.h.changeColsBounds(len(ks), np.array([self.pnom_cols[k] for k in ks], np.int32), lb, ub)
+
+    def price_closed(self, tol=1e-6):
+        """Reduced costs of the closed stations' capacity columns at the current optimum. If none is negative
+        (and HiGHS reports no dual infeasibility), the solution is optimal over all candidate stations."""
+        info = self.h.getInfo()
+        rc = np.asarray(self.h.getSolution().col_dual)
+        closed = [k for k in self.cost_site if k not in self.open]
+        neg = [k for k in closed if rc[self.pnom_cols[k]] < -tol * max(1.0, abs(self.cap_cost[k]))]
+        return neg, int(info.num_dual_infeasibilities), (min(rc[self.pnom_cols[k]] for k in closed) if closed else 0.0)
 
     def solve(self):
         import highspy
@@ -304,10 +338,15 @@ class Joint:
         bas = PARTS / f'basis_{self.year}_cold.bas'
         first = not getattr(self, '_solved', False)
         if first and bas.exists() and self.n_pairs == 0 and SOLVER['solver'] == 'simplex':
+            import highspy
             try:
-                self.h.readBasis(str(bas)); print(f'  warm start from {bas.name}', flush=True)
-            except Exception as e:      # stale checkpoint: solve cold
-                print(f'  basis checkpoint not used ({e})', flush=True)
+                st = self.h.readBasis(str(bas))
+                ok = st == highspy.HighsStatus.kOk and self.h.getBasis().valid
+            except Exception:
+                ok = False
+            print(f'  basis checkpoint {bas.name}: {"warm start" if ok else "not used (solving cold)"}', flush=True)
+            if not ok:
+                self.h.setBasis()       # discard any partially read basis
         t0 = time.time()
         self.h.run()
         if first:
@@ -338,7 +377,7 @@ class Joint:
         """All rows, all hours. Returns violated (row, hour, sign) arrays, the near-binding hours of the
         violated rows, max violation (MW) and the worst increase of a pre-existing overload (MW)."""
         g = self.grid
-        out_r, out_t, out_s, worst, worst_pre, nviol = [], [], [], 0.0, 0.0, 0
+        found, worst, worst_pre, nviol = [], 0.0, 0.0, 0
         for a in range(0, len(g.f0), CHUNK):
             b = min(len(g.f0), a + CHUNK)
             fl = g.f0[a:b, None] + (g.D[a:b] @ inj) * 1000.0
@@ -351,12 +390,22 @@ class Joint:
             rows_v = np.flatnonzero(over.any(1))
             if not len(rows_v):
                 continue
-            nviol += int(over.sum()); worst = max(worst, float((np.abs(fl[rows_v]) - lim[rows_v]).max()))
-            near = np.abs(fl[rows_v]) >= NEAR * lim[rows_v]
-            rr, tt = np.nonzero(near)
-            out_r.append(a + rows_v[rr]); out_t.append(tt); out_s.append(np.sign(fl[rows_v][rr, tt]))
-        cat = (lambda x: np.concatenate(x) if x else np.zeros(0, int))
-        return cat(out_r), cat(out_t), cat(out_s), nviol, worst, worst_pre
+            nviol += int(over.sum())
+            for q in rows_v:
+                f = fl[q]; v = float((np.abs(f) - lim[q, 0]).max()); worst = max(worst, v)
+                tt = np.flatnonzero(np.abs(f) >= NEAR * lim[q, 0])
+                found.append((v, a + int(q), tt, np.sign(f[tt])))
+        found.sort(key=lambda x: -x[0])
+        keep, npairs = [], 0
+        for x in found[:MAX_ROWS]:
+            if keep and npairs + len(x[2]) > MAX_PAIRS:
+                break
+            keep.append(x); npairs += len(x[2])
+        found = keep
+        R = np.concatenate([np.full(len(x[2]), x[1]) for x in found]) if found else np.zeros(0, int)
+        T = np.concatenate([x[2] for x in found]) if found else np.zeros(0, int)
+        S = np.concatenate([x[3] for x in found]) if found else np.zeros(0)
+        return R, T, S, nviol, worst, worst_pre
 
     def add_flowgates(self, R, T, S, tag):
         g = self.grid
@@ -376,7 +425,9 @@ class Joint:
         const = g.f0[R] / 1000.0 + np.einsum('kp,pk->k', DR, self.cst[:, T])
         lim = g.lim[R] / 1000.0
         lower = np.where(S > 0, -np.inf, -lim - const); upper = np.where(S > 0, lim - const, np.inf)
+        r0 = self.h.getNumRow()
         self.h.addRows(len(R), lower, upper, int(nz.sum()), starts, idx[nz].astype(np.int32), val[nz])
+        self.cut_idx += list(range(r0, r0 + len(R))); self.cut_lo += list(lower); self.cut_hi += list(upper)
         self.n_pairs += len(new)
         return len(new)
 
@@ -393,7 +444,17 @@ class Joint:
             log(f'  it {it}: {sec:.0f} s, obj {rec["objective_mbrl"]:.3f}, violated {nviol} (max {worst:.1f} MW), '
                 f'pairs {self.n_pairs} on {rec["rows"]} rows', flush=True)
             if not self.network or nviol == 0:
-                return P, PS, PD, inj, pd.DataFrame(hist)
+                if self.fixed:
+                    return P, PS, PD, inj, pd.DataFrame(hist)
+                neg, dinf, rcmin = self.price_closed()
+                hist[-1].update({'open_stations': len(self.open & set(self.cost_site)), 'opened_now': len(neg),
+                                 'dual_infeasibilities': dinf, 'min_closed_reduced_cost': rcmin})
+                log(f'  pricing: {len(neg)} closed stations with negative reduced cost (min {rcmin:.4g}), '
+                    f'dual infeasibilities {dinf}', flush=True)
+                if not neg:
+                    return P, PS, PD, inj, pd.DataFrame(hist)
+                self.open |= set(neg); self.apply_capacity_bounds()
+                continue
             self.add_flowgates(R, T, S, it)
         raise RuntimeError(f'lazy flowgates did not converge in {max_iter} iterations')
 
@@ -418,7 +479,8 @@ def summarise(J: Joint, label: str, P, PS, PD, hist) -> tuple[dict, pd.DataFrame
     S = pd.DataFrame(sites)
     tot = S.groupby('tech').capacity_mw.sum() / 1000
     gen = P.to_pandas().T
-    shed = gen.filter(like='shed_').sum(1).to_numpy() if J.shed else np.zeros(8760)
+    shed = gen['shed'].to_numpy() if J.shed else np.zeros(8760)
+    w = d['w']; pen = w * SHED_PRICE[J.shed] * float(shed.sum()) if J.shed else 0.0
     names_new = [g for g in J.gens if ('@' in g or g == 'solar_distributed') and not g.startswith('biogas@')]
     avail = sum(float(gp[g]) * (d['cf'][g.split('@')[0]] if '@' in g else d['cf']['solar_distributed']) for g in names_new)
     avail = avail + d['vrebase']
@@ -431,9 +493,12 @@ def summarise(J: Joint, label: str, P, PS, PD, hist) -> tuple[dict, pd.DataFrame
     tie = TIE * float(J.value('area_deviation').sum())
     last = hist.iloc[-1]
     out = {'case': label, 'year': J.year, 'network': J.network, 'shed_allowed': J.shed, 'site_cost': J.site_cost,
-           'area_caps': J.area_caps, 'fixed_sequential': J.fixed, 'objective_mbrl': J.obj - tie, 'tie_break_mbrl': tie,
+           'area_caps': J.area_caps, 'fixed_sequential': J.fixed, 'shed_price': J.shed or 'none',
+           'objective_mbrl': J.obj - tie, 'tie_break_mbrl': tie, 'shed_penalty_pv_mbrl': pen,
+           'objective_excl_shed_mbrl': J.obj - tie - pen,
+           'objective_voll_valued_mbrl': J.obj - tie - pen + w * VOLL * float(shed.sum()),
            'capital_and_fixed_cost_pv_mbrl': capital,
-           'site_connection_extra_pv_mbrl': site_extra, 'operating_cost_pv_mbrl': J.obj - tie - capital,
+           'site_connection_extra_pv_mbrl': site_extra, 'operating_cost_pv_mbrl': J.obj - tie - pen - capital,
            **{f'cap_{t}_gw': float(tot.get(t, 0.0)) for t in pp.TECH},
            'bess_at_load_gw': float(sp['bess@load']),
            'imports_twh': float(gen['imports'].sum() / 1000) if 'imports' in gen else 0.0,
@@ -459,16 +524,36 @@ def run_case(J: Joint, case: str, save_hourly=False):
     return out, S, hist.assign(case=label)
 
 
-CASES = {  # label: (network, shed at VOLL, site connection cost, area caps, fixed sequential capacities); run order
-    'copperplate': (False, True, True, True, False),
-    'gate': (False, False, False, True, False),
-    'network': (True, True, True, True, False),
-    'network_uncapped': (True, True, True, False, False),
-    'sequential': (True, True, True, True, True),
+CASES = {  # label: (network, unserved-energy price: None / 'lp' / 'voll', site connection cost, area caps,
+           #         fixed sequential capacities)
+    'copperplate': (False, 'lp', True, True, False),
+    'gate': (False, None, False, True, False),
+    'network': (True, 'lp', True, True, False),
+    'network_uncapped': (True, 'lp', True, False, False),
+    'sequential': (True, 'lp', True, True, True),
+    'network_voll': (True, 'voll', True, True, False),
 }
 
 
 CASE_DIR = OUT / 'joint_cases'
+
+
+def one_bus_bound(year: int) -> dict:
+    """Lower bound on every joint case with unserved energy at VOLL: the one-bus LP (no network, no site
+    costs, no area caps) with the same VOLL shed column. Site costs and the tie-break are >= 0."""
+    case = pp.refresh_cases()[0 if year == 2035 else 1]
+    d = pp.lp_inputs(case); n = pp.build(case, d)
+    lm = float(d['load'].max())
+    n.add('Generator', 'shed', bus='MG', p_nom=lm, p_max_pu=pd.Series(d['load'] / lm, n.snapshots), marginal_cost=VOLL)
+    status, cond = n.optimize(solver_name='highs', extra_functionality=pp.extra(case, d), include_objective_constant=False,
+                              solver_options={'output_flag': False, 'primal_feasibility_tolerance': 1e-7,
+                                              'dual_feasibility_tolerance': 1e-7})
+    assert status == 'ok', (status, cond)
+    g = n.generators_t.p
+    caps = {t: float(n.generators.at[t, 'p_nom_opt']) for t in pp.CF_TECH + ['biogas']}
+    caps['bess'] = float(n.storage_units.at['bess', 'p_nom_opt'])
+    return {'case': f'{year}_one_bus_voll', 'year': year, 'objective_mbrl': float(n.objective),
+            'shed_gwh': float(g['shed'].sum()), **{f'cap_{t}_gw': v for t, v in caps.items()}}
 
 
 def merge():
@@ -492,7 +577,12 @@ def main(argv=None):
         t0 = time.time()
         J = Joint(y)
         print(f'{y}: built in {time.time() - t0:.0f} s: {len(J.gens)} generators, {len(J.stores)} storage units', flush=True)
-        for c in [c for c in CASES if c in a.cases]:
+        rec = json.loads((pp.MACRO / 'output' / f'REFRESH_{y}' / 'solver.json').read_text())
+        pd.DataFrame([{'case': f'{y}_one_bus_lp', 'year': y, 'objective_mbrl': float(rec['objective']),
+                       'note': 'saved portfolio LP (no unserved energy): lower bound of the main cases'},
+                      {**one_bus_bound(y), 'note': 'one-bus LP with unserved energy at VOLL: lower bound of network_voll'}]
+                     ).to_csv(CASE_DIR / f'{y}_bounds.csv', index=False, float_format='%.6f')
+        for c in a.cases:
             label = f'{y}_{c}'
             out, S, H = run_case(J, c, save_hourly=c in ('network', 'network_uncapped', 'sequential'))
             pd.DataFrame([out]).to_csv(CASE_DIR / f'{label}_summary.csv', index=False, float_format='%.6f')

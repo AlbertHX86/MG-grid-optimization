@@ -1,0 +1,2 @@
+case,iteration,ub_iterate_mbrl,best_ub_mbrl,lb_mbrl,gap,delta_gw,serious,shed_gwh,cut_pairs,flow_rounds,seconds
+2035_sequential,0,15757.723696,15757.723696,15752.631583,0.000323,2.000000,True,0.000000,0,0,9.266655

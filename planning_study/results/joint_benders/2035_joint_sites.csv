@@ -1,0 +1,63 @@
+case,tech,area,rank,bus_id,station,kv,extra_conn_brl_kw,area_cap_mw,name,capacity_mw
+2035_joint,solar_central,Arinos,0,39813,ARINOS 2,500,0.000000,450.000000,solar_central@Arinos@39813,300.000000
+2035_joint,solar_central,Arinos,1,1523,PARACATU 4,500,593.018451,450.000000,solar_central@Arinos@1523,0.000000
+2035_joint,solar_central,Arinos,2,1524,PIRAPORA 2,345,780.593979,450.000000,solar_central@Arinos@1524,0.000000
+2035_joint,solar_central,Janauba,0,1708,JANAUBA 3,230,0.000000,330.000000,solar_central@Janauba@1708,220.000000
+2035_joint,solar_central,Janauba,1,38929,JANAUBA 6,500,89.007067,330.000000,solar_central@Janauba@38929,0.000000
+2035_joint,solar_central,Janauba,2,38971,JAIBA,230,248.017219,330.000000,solar_central@Janauba@38971,0.000000
+2035_joint,solar_central,Jaiba,0,38971,JAIBA,230,0.000000,240.000000,solar_central@Jaiba@38971,160.000000
+2035_joint,solar_central,Jaiba,1,1708,JANAUBA 3,230,312.792487,240.000000,solar_central@Jaiba@1708,0.000000
+2035_joint,solar_central,Jaiba,2,38929,JANAUBA 6,500,288.125677,240.000000,solar_central@Jaiba@38929,0.000000
+2035_joint,solar_central,Pirapora,0,1524,PIRAPORA 2,345,0.000000,180.000000,solar_central@Pirapora@1524,120.000000
+2035_joint,solar_central,Pirapora,1,1519,VARZEA PALMA1,345,115.941989,180.000000,solar_central@Pirapora@1519,0.000000
+2035_joint,solar_central,Pirapora,2,26700,VARZEA PALMA 4,345,138.692684,180.000000,solar_central@Pirapora@26700,0.000000
+2035_joint,solar_central,Paracatu,0,1523,PARACATU 4,500,0.000000,165.000000,solar_central@Paracatu@1523,110.000000
+2035_joint,solar_central,Paracatu,1,1509,EMBORCACAO,500,574.968208,165.000000,solar_central@Paracatu@1509,0.000000
+2035_joint,solar_central,Paracatu,2,39813,ARINOS 2,500,616.405024,165.000000,solar_central@Paracatu@39813,0.000000
+2035_joint,solar_central,Montes Claros,0,1493,MONTESCLAROS2,345,0.000000,135.000000,solar_central@Montes Claros@1493,90.000000
+2035_joint,solar_central,Montes Claros,1,38929,JANAUBA 6,500,224.495145,135.000000,solar_central@Montes Claros@38929,0.000000
+2035_joint,solar_central,Montes Claros,2,1708,JANAUBA 3,230,475.021696,135.000000,solar_central@Montes Claros@1708,0.000000
+2035_joint,bio,Frutal,0,3842,P. COLOMBIA,345,22.909077,460.425000,bio@Frutal@3842,0.000000
+2035_joint,bio,Frutal,1,4598,MARIMBONDO II,500,0.000000,460.425000,bio@Frutal@4598,306.950000
+2035_joint,bio,Frutal,2,3854,MARIMBONDO,345,32.427347,460.425000,bio@Frutal@3854,0.000000
+2035_joint,bio,Ituiutaba,0,38902,MONTE ALEGRE2,345,0.000000,460.425000,bio@Ituiutaba@38902,306.950000
+2035_joint,bio,Ituiutaba,1,3862,ITUMBIARA,230,122.531527,460.425000,bio@Ituiutaba@3862,0.000000
+2035_joint,bio,Ituiutaba,2,1514,SAO SIMAO-SE,500,152.682790,460.425000,bio@Ituiutaba@1514,0.000000
+2035_joint,bio,Paracatu,0,1523,PARACATU 4,500,0.000000,394.650000,bio@Paracatu@1523,263.100000
+2035_joint,bio,Paracatu,1,1509,EMBORCACAO,500,574.968208,394.650000,bio@Paracatu@1509,0.000000
+2035_joint,bio,Paracatu,2,39813,ARINOS 2,500,616.405024,394.650000,bio@Paracatu@39813,0.000000
+2035_joint,small_hydro,Aimorés,0,1637,AIMORES-SE,230,0.000000,88.800000,small_hydro@Aimorés@1637,59.200000
+2035_joint,small_hydro,Aimorés,1,1616,CONSE. PENA,230,231.306921,88.800000,small_hydro@Aimorés@1616,0.000000
+2035_joint,small_hydro,Aimorés,2,38974,MUTUM,500,171.665610,88.800000,small_hydro@Aimorés@38974,0.000000
+2035_joint,small_hydro,Pirapora,0,1524,PIRAPORA 2,345,0.000000,133.200000,small_hydro@Pirapora@1524,88.800000
+2035_joint,small_hydro,Pirapora,1,1519,VARZEA PALMA1,345,115.941989,133.200000,small_hydro@Pirapora@1519,0.000000
+2035_joint,small_hydro,Pirapora,2,26700,VARZEA PALMA 4,345,138.692684,133.200000,small_hydro@Pirapora@26700,0.000000
+2035_joint,small_hydro,Diamantina,0,26470,P. JUSCELINO,345,0.000000,111.000000,small_hydro@Diamantina@26470,74.000000
+2035_joint,small_hydro,Diamantina,1,26700,VARZEA PALMA 4,345,247.699344,111.000000,small_hydro@Diamantina@26700,0.000000
+2035_joint,small_hydro,Diamantina,2,1519,VARZEA PALMA1,345,278.829535,111.000000,small_hydro@Diamantina@1519,0.000000
+2035_joint,small_hydro,Paracatu,0,1523,PARACATU 4,500,0.000000,111.000000,small_hydro@Paracatu@1523,74.000000
+2035_joint,small_hydro,Paracatu,1,1509,EMBORCACAO,500,574.968208,111.000000,small_hydro@Paracatu@1509,0.000000
+2035_joint,small_hydro,Paracatu,2,39813,ARINOS 2,500,616.405024,111.000000,small_hydro@Paracatu@39813,0.000000
+2035_joint,wind_site,Janauba,0,38900,JANAUBA 3,500,0.000000,1500.000000,wind_site@Janauba@38900,0.000000
+2035_joint,wind_site,Janauba,1,38929,JANAUBA 6,500,137.450847,1500.000000,wind_site@Janauba@38929,0.000000
+2035_joint,wind_site,Janauba,2,38911,JAIBA,500,207.986319,1500.000000,wind_site@Janauba@38911,0.000000
+2035_joint,wind_site,Grao Mogol,0,1510,IRAPE-SE,345,0.000000,1500.000000,wind_site@Grao Mogol@1510,0.000000
+2035_joint,wind_site,Grao Mogol,1,38900,JANAUBA 3,500,147.658147,1500.000000,wind_site@Grao Mogol@38900,0.000000
+2035_joint,wind_site,Grao Mogol,2,38929,JANAUBA 6,500,149.737467,1500.000000,wind_site@Grao Mogol@38929,0.000000
+2035_joint,bess,Montes Claros,0,1493,MONTESCLAROS2,345,7.252887,inf,bess@Montes Claros@1493,0.000000
+2035_joint,bess,Montes Claros,1,38929,JANAUBA 6,500,0.000000,inf,bess@Montes Claros@38929,0.000000
+2035_joint,bess,Montes Claros,2,1708,JANAUBA 3,230,18.257054,inf,bess@Montes Claros@1708,0.000000
+2035_joint,bess,Uberaba,0,1517,VOLTA GRANDE-SE,345,7.252887,inf,bess@Uberaba@1517,0.000000
+2035_joint,bess,Uberaba,1,38932,NOVA PONTE 3,500,0.000000,inf,bess@Uberaba@38932,0.000000
+2035_joint,bess,Uberaba,2,26504,JAGUARA-500,345,7.252887,inf,bess@Uberaba@26504,0.000000
+2035_joint,bess,Janauba,0,1708,JANAUBA 3,230,18.257054,inf,bess@Janauba@1708,0.000000
+2035_joint,bess,Janauba,1,38929,JANAUBA 6,500,0.000000,inf,bess@Janauba@38929,0.000000
+2035_joint,bess,Janauba,2,38971,JAIBA,230,18.257054,inf,bess@Janauba@38971,0.000000
+2035_joint,wind,Janauba,0,38900,JANAUBA 3,500,0.000000,inf,wind@Janauba@38900,0.000000
+2035_joint,wind,Janauba,1,38929,JANAUBA 6,500,137.450847,inf,wind@Janauba@38929,0.000000
+2035_joint,wind,Janauba,2,38911,JAIBA,500,207.986319,inf,wind@Janauba@38911,0.000000
+2035_joint,wind,Grao Mogol,0,1510,IRAPE-SE,345,0.000000,inf,wind@Grao Mogol@1510,0.000000
+2035_joint,wind,Grao Mogol,1,38900,JANAUBA 3,500,147.658147,inf,wind@Grao Mogol@38900,0.000000
+2035_joint,wind,Grao Mogol,2,38929,JANAUBA 6,500,149.737467,inf,wind@Grao Mogol@38929,0.000000
+2035_joint,solar_distributed,MG load buses,-1,-1,load buses pro rata,-1,0.000000,inf,solar_distributed,1044.000000
+2035_joint,bess,MG load buses,-1,-1,load buses pro rata,-1,0.000000,inf,bess@load,0.000000
