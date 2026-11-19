@@ -1,0 +1,2 @@
+case,year,objective_mbrl,lower_bound_mbrl,gap,iterations,best_iteration,shed_gwh,objective_voll_valued_mbrl,cut_pairs,seconds,cap_solar_central_gw,cap_solar_distributed_gw,cap_bio_gw,cap_small_hydro_gw,cap_wind_gw,cap_wind_site_gw,cap_biogas_gw,cap_bess_gw,bess_at_load_gw,network,area_caps,fix_totals,shed
+2050_siting,2050,20285.434158,20285.413496,0.000001,15,14,0.000000,20285.434158,262504,2377.339531,12.918150,7.944000,0.877000,0.671000,0.000000,2.000000,0.400000,5.290484,1.943957,True,True,True,lp

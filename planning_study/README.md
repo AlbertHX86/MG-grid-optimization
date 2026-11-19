@@ -7,7 +7,7 @@ phases 2–5, the report and the poster. The compiled report is `report/main.pdf
 
 | Step | Script | What it does | Gate (script exits non-zero if it fails) |
 |---|---|---|---|
-| 1 | `../run_hosting_capacity.sh` | DC N-0/N-1 deliverability with pro-rata absorption and the CAISO 5% circle; POI hosting map; constraint subset | PR #4 reproduced exactly; PyPSA PTDF/BODF/lpf cross-check |
+| 1 | `../run_hosting_capacity.sh` | DC N-0/N-1 deliverability with pro-rata absorption and the CAISO 5% circle; POI hosting map | PR #4 reproduced exactly; PyPSA PTDF/BODF/lpf cross-check |
 | 2a | `portfolio_pypsa.py` | The single-year portfolio LP rebuilt in PyPSA; CAISO/PJM sensitivity portfolios | Reproduces the saved 2035/2050 objectives and capacities, and the original code's dry-hydro solves |
 | 2a | `sensitivity_deliverability.py` | HSN/SSN deliverability of the sensitivity portfolios | Base portfolios reproduce phase 1 |
 | 2b | `adequacy.py` | Method A: COPT with NERC GADS EFORd, LOLE/LOLH/EUE, ELCC. Method B: sequential Monte Carlo with an energy-limited PyPSA dispatch | Zero-EFOR COPT matches deterministic shortfalls; no-outage dispatch has zero shed (normal) and equals the original code's fixed-portfolio ENS (dry) |

@@ -1,0 +1,2 @@
+iteration,seconds,objective_mbrl,violations,max_violation_mw,pairs,rows,worst_preexisting_increase_mw,case
+0,136.263823,15757.723696,0,0.000000,0,0,38.540909,2035_sequential

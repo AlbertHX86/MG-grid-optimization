@@ -1,0 +1,2 @@
+iteration,seconds,objective_mbrl,violations,max_violation_mw,pairs,rows,worst_preexisting_increase_mw,open_stations,opened_now,dual_infeasibilities,min_closed_reduced_cost,case
+0,9.143366,15752.631583,0,0.000000,0,0,38.540909,25,0,0,0.000000,2035_network_voll

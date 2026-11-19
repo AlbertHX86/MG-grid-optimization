@@ -48,7 +48,6 @@ CASES = ('P_prorata', 'A1_mg_backdown', 'A2_displace_inflow', 'B_export')
 CIRCLE = 0.05              # CAISO 5% circle threshold (DFAX and flow impact / rating)
 CAP_MW, CAP_UNITS = 1500.0, 20   # CAISO per-facility increase cap (sensitivity)
 TOP_FRAC = 0.01            # top 1% of hours (88 h) define each LP study condition
-SUBSET_LOADING = 0.90      # constraint subset: rows loaded >= 90% at full study output
 SITED = ['solar_central', 'bio', 'small_hydro', 'wind_site', 'biogas', 'bess']
 USED_COL = {'solar_central': 'used_new_solar_central_gw', 'solar_distributed': 'used_new_solar_distributed_gw',
             'bio': 'used_new_bio_gw', 'small_hydro': 'used_new_small_hydro_gw',
@@ -366,7 +365,7 @@ def main():
                           'overload_mw': abs(base.f0[j]) - base.lim[j]})
     pd.DataFrame(base_rows).to_csv(OUT / 'base_case_screen.csv', index=False, float_format='%.6f')
 
-    checks, upgrades, facs, sub_rows = [], [], [], []
+    checks, upgrades, facs = [], [], []
     poi = None
     groups = upgrade_groups(net)
     prof = availability_profiles()
@@ -374,7 +373,6 @@ def main():
                for y in YEARS}
     pwf_mg_load = float(net.B.loc[(net.B.state == 11) & (net.B.pd > 0), 'pd'].sum())
     growth_2050 = (lp_load[2050] / lp_load[2035] - 1.0) * pwf_mg_load   # MW at PWF scale
-    pairs = {}                      # (element, contingency) -> max loading, main mode, all cases
     for year in YEARS:
         cap = portfolio_mw(year)
         fac_df, existing = lp_factors(year, cap)
@@ -408,14 +406,6 @@ def main():
                         checks.append({**key, **res})
                         if mode == 'circle' and sname in ('reference', 'reference_bess_at_load'):
                             upgrades += [{**key, **u} for u in ups]
-                        if mode == 'circle' and rr is not None:
-                            r, active = rr
-                            ld = np.where(active, np.abs(r.f0 + r.g) / r.lim, 0.0)
-                            for i in np.flatnonzero(ld >= SUBSET_LOADING):
-                                kk = (int(r.elem[i]), int(r.cont[i]))
-                                pairs[kk] = max(pairs.get(kk, 0.0), float(ld[i]))
-                            # f0/lim/elem/cont are the same for every case; keep only g and the mask
-                            sub_rows.append((key, P.sum(), r.g.copy(), active.copy(), res['alpha']))
         # Sensitivity: existing central PV (equal split over the PWF's UFV buses, an assumption)
         # and existing DG at load buses, added at the S1 hours.
         B = net.B
@@ -436,54 +426,6 @@ def main():
             poi = poi_table(net, cands)
             poi.to_csv(OUT / 'poi_hosting_capacity.csv', index=False, float_format='%.6f')
 
-    # ---- constraint subset (for the production-cost run) and its validation ----
-    P_sel = set(pairs)
-    sub = pd.DataFrame([{'element': e, 'contingency': c, 'max_loading': v, 'group': groups[e][1],
-                         **{k: net.branch_label(e)[k] for k in ('from_name', 'to_name', 'kind', 'kv')},
-                         'contingency_name': 'N-0' if c < 0 else '{from_name}-{to_name}'.format(**net.branch_label(c))}
-                        for (e, c), v in sorted(pairs.items())])
-    sub.to_csv(OUT / 'critical_subset.csv', index=False, float_format='%.6f')
-
-    b0 = net.rows(np.zeros(net.n))
-    row_key = b0.elem.astype(np.int64) * 10000 + (b0.cont.astype(np.int64) + 1)
-
-    def keys_of(selection):
-        return np.array(sorted(e * 10000 + (c + 1) for e, c in selection), dtype=np.int64)
-
-    def validate(selection, cases_):
-        sel = np.isin(row_key, keys_of(selection))
-        exact = differ = ver = 0
-        for key, need, g, active, a_full in cases_:
-            r = Rows(b0.f0, g, b0.lim, b0.elem, b0.cont)
-            a_sub, _ = Network.max_scale(r, 0.0, total=need, active=active & sel)
-            if a_full < 1:
-                exact += abs(a_full - a_sub) < 1e-9
-                differ += abs(a_full - a_sub) >= 1e-9
-            ver += (a_full >= 1) == (a_sub >= 1)
-        return exact, differ, ver
-    n_lt = sum(1 for x in sub_rows if x[4] < 1)
-    ex_in, df_in, ver_in = validate(P_sel, sub_rows)
-    # out of sample: subset chosen from reference-siting cases only, validated on the other sitings
-    pairs_ref = {}
-    for key, need, g, active, a in sub_rows:
-        if key['siting'] != 'reference':
-            continue
-        ld = np.where(active, np.abs(b0.f0 + g) / b0.lim, 0.0)
-        for i in np.flatnonzero(ld >= SUBSET_LOADING):
-            pairs_ref[(int(b0.elem[i]), int(b0.cont[i]))] = 1
-    others = [x for x in sub_rows if x[0]['siting'] != 'reference']
-    ex_out, df_out, ver_out = validate(set(pairs_ref), others)
-    subset_info = {'pairs': len(P_sel), 'elements': int(sub.element.nunique()) if len(sub) else 0,
-                   'groups': int(sub.group.nunique()) if len(sub) else 0,
-                   'contingencies': int(sub.loc[sub.contingency >= 0, 'contingency'].nunique()) if len(sub) else 0,
-                   'rows_full': int(len(b0.f0)), 'cases': len(sub_rows), 'cases_alpha_lt1': n_lt,
-                   'in_sample_exact_alpha_lt1': int(ex_in), 'in_sample_differ_alpha_lt1': int(df_in),
-                   'in_sample_same_verdict': int(ver_in),
-                   'out_of_sample_pairs': len(pairs_ref), 'out_of_sample_cases': len(others),
-                   'out_of_sample_cases_alpha_lt1': sum(1 for x in others if x[4] < 1),
-                   'out_of_sample_exact_alpha_lt1': int(ex_out), 'out_of_sample_differ_alpha_lt1': int(df_out),
-                   'out_of_sample_same_verdict': int(ver_out)}
-
     pd.concat(facs).to_csv(OUT / 'study_factors.csv', index=False, float_format='%.6f')
     chk = pd.DataFrame(checks)
     chk.to_csv(OUT / 'portfolio_vs_hosting.csv', index=False, float_format='%.6f')
@@ -495,13 +437,13 @@ def main():
             'cap_mw': CAP_MW, 'cap_units': CAP_UNITS, 'top_hours_fraction': TOP_FRAC,
             'lp_load_twh': lp_load, 'pwf_mg_load_mw': pwf_mg_load, 'load_growth_2050_mw_at_pwf_scale': growth_2050,
             'main_case': MAIN, 'balancing_cases': {c: net.balancing(c)[2] for c in CASES},
-            'energy_headroom_mw': {c: net.balancing(c)[1] for c in CASES}, 'subset': subset_info}
+            'energy_headroom_mw': {c: net.balancing(c)[1] for c in CASES},
+            'monitored_rows': int(len(net.rows(np.zeros(net.n)).f0))}
     (OUT / 'run_info.json').write_text(json.dumps(info, indent=2, default=float))
     write_results_md(chk, pd.DataFrame(upgrades), poi, pd.DataFrame(base_rows), pd.concat(facs), info)
     view = chk[(chk.siting == 'reference') & (chk['mode'] == 'circle') & chk.main]
     print(view[['year', 'condition', 'case', 'need_mw', 'alpha', 'deliverable_mw', 'n_upgrades_to_alpha1',
                 'status', 'binding_element']].round(2).to_string())
-    print(json.dumps(subset_info, indent=1))
 
 
 # ------------------------------------------------------------------ report
@@ -566,7 +508,6 @@ def write_results_md(chk, ups, poi, base, facs, info):
     p['kv'] = p['kv'].astype(str)
     p.columns = ['POI', 'kV', 'candidate areas', 'pro rata MW ↑', 'A1 MW ↑', 'A2 MW ↑', 'B MW ↑',
                  'pro rata N-0 only MW ↑', 'pro-rata binding element', 'under']
-    s = info['subset']
     lines = [
         '# Deliverability of the fixed portfolios on the existing MG main grid',
         '',
@@ -641,17 +582,6 @@ def write_results_md(chk, ups, poi, base, facs, info):
         '## Per-POI hosting capacity (2050 candidate stations, N-0 + N-1, injected MW, 5% circle)',
         '',
         md(p),
-        '',
-        '## Constraint subset for the production-cost run',
-        '',
-        f"Rows (element, contingency) loaded ≥ {SUBSET_LOADING:.0%} of their limit at full study output in any of the "
-        f"{s['cases']} circle-mode cases: {s['pairs']:,} of {s['rows_full']:,} rows ({100 * s['pairs'] / s['rows_full']:.1f}%), "
-        f"{s['elements']} elements in {s['groups']} groups. In-sample: α identical in {s['in_sample_exact_alpha_lt1']} of "
-        f"{s['cases_alpha_lt1']} cases with α < 1 and the same deliverable/not verdict in {s['in_sample_same_verdict']} of "
-        f"{s['cases']} cases. Out of sample (subset from the reference siting only, {s['out_of_sample_pairs']:,} rows, tested on "
-        f"the other {s['out_of_sample_cases']} cases): α identical in {s['out_of_sample_exact_alpha_lt1']} of "
-        f"{s['out_of_sample_cases_alpha_lt1']} cases with α < 1, same verdict in {s['out_of_sample_same_verdict']} of "
-        f"{s['out_of_sample_cases']}. Any solution built on the subset is re-checked on all rows.",
         '',
         '## Not covered here',
         '',

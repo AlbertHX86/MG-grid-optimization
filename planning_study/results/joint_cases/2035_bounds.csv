@@ -1,0 +1,3 @@
+case,year,objective_mbrl,note,shed_gwh,cap_solar_central_gw,cap_solar_distributed_gw,cap_bio_gw,cap_small_hydro_gw,cap_wind_gw,cap_wind_site_gw,cap_biogas_gw,cap_bess_gw
+2035_one_bus_lp,2035,15752.631583,saved portfolio LP (no unserved energy): lower bound of the main cases,,,,,,,,,
+2035_one_bus_voll,2035,15752.631583,one-bus LP with unserved energy at VOLL: lower bound of network_voll,0.000000,1.000000,1.044000,0.877000,0.296000,-0.000000,-0.000000,-0.000000,-0.000000

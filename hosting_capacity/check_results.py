@@ -5,8 +5,7 @@
    DFAX-0% column (fixture) exactly.
 2. The 5% circle only removes rows (and pre-existing overloads), so alpha(circle) >= alpha(all).
 3. Pro-rata headroom = A1 + A2 headroom; deliverable MW <= need and <= headroom.
-4. The constraint subset reproduces alpha in every in-sample case with alpha < 1.
-5. Study factors lie in [0, 1] (BESS in [-1, 1]).
+4. Study factors lie in [0, 1] (BESS in [-1, 1]).
 """
 import json
 import sys
@@ -52,11 +51,6 @@ bound = c.need_mw * np.maximum(1, c.alpha)          # CSVs carry 6 decimals: com
 ok = (c.deliverable_mw <= bound * (1 + 1e-6) + 1e-6).all() and \
      (c.deliverable_mw <= c.energy_headroom_mw * (1 + 1e-6) + 1e-6).all()
 check('deliverable MW bounded by need*alpha and headroom', bool(ok), f'{len(c)} rows')
-
-s = info['subset']
-check('subset exact in sample for alpha < 1', s['in_sample_exact_alpha_lt1'] == s['cases_alpha_lt1'] and
-      s['in_sample_differ_alpha_lt1'] == 0, f"{s['in_sample_exact_alpha_lt1']} of {s['cases_alpha_lt1']}")
-check('subset verdict in sample', s['in_sample_same_verdict'] == s['cases'], f"{s['in_sample_same_verdict']} of {s['cases']}")
 
 f = pd.read_csv(OUT / 'study_factors.csv')
 nb = f[f.technology != 'bess']

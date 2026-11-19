@@ -217,15 +217,6 @@ does not model.
 \input{tables/p7}
 \input{tables/ac}
 
-\paragraph{Does a constraint subset represent the full system?} The production-cost run needs a manageable set of flow constraints. Rows
-loaded $\ge$90\% at full study output in any of the \Nsubsetcases{} cases form a subset of \Nsubsetpairs{} rows (\Nsubsetpct\% of
-\Nsubsetrowsfull), \Nsubsetelements{} elements in \Nsubsetgroups{} groups. Because removing constraints can only make a problem more
-optimistic, a solution that satisfies all omitted rows is optimal for the full problem; and any row that binds at $\alpha<1$ is loaded
-$\ge$100\% at full output, so it is in the subset. Empirically $\alpha$ is identical in \Nsubsetinsampleexactalphaltone{} of
-\Nsubsetcasesalphaltone{} in-sample cases with $\alpha<1$ and in \Nsubsetoutofsampleexactalphaltone{} of
-\Nsubsetoutofsamplecasesalphaltone{} out-of-sample cases (subset drawn from the reference siting only). The production-cost run therefore
-adds flowgates lazily and re-checks every hour on all rows (Section~\ref{sec:pcm}).
-
 % ---------------------------------------------------------------------------------------------------------------------------
 \section{Mitigation and battery siting (3f, 2c)}\label{sec:mitigation}
 For each attributable group the alternatives follow the PG\&E cluster-study structure \citep{course_l12}: status quo; limiting-element

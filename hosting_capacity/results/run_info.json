@@ -30,22 +30,5 @@
     "A2_displace_inflow": 23616.42356921534,
     "B_export": Infinity
   },
-  "subset": {
-    "pairs": 8393,
-    "elements": 66,
-    "groups": 30,
-    "contingencies": 437,
-    "rows_full": 242708,
-    "cases": 220,
-    "cases_alpha_lt1": 106,
-    "in_sample_exact_alpha_lt1": 106,
-    "in_sample_differ_alpha_lt1": 0,
-    "in_sample_same_verdict": 220,
-    "out_of_sample_pairs": 6729,
-    "out_of_sample_cases": 160,
-    "out_of_sample_cases_alpha_lt1": 71,
-    "out_of_sample_exact_alpha_lt1": 71,
-    "out_of_sample_differ_alpha_lt1": 0,
-    "out_of_sample_same_verdict": 160
-  }
+  "monitored_rows": 242708
 }
