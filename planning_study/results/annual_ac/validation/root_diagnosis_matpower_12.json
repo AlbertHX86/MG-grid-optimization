@@ -1,0 +1,40 @@
+{
+  "months": 12,
+  "cases": [
+    "p6_2035_sequential",
+    "p6_2035_siting",
+    "p6_2050_sequential",
+    "p6_2050_siting"
+  ],
+  "distinct_root_pairs_by_case": [
+    0,
+    0,
+    7,
+    0
+  ],
+  "matpower_cross_start_max_complex_voltage_difference": 8.8012323768083642E-10,
+  "matpower_max_residual_mw_mvar_on_both_roots": 5.5156519351839961E-7,
+  "max_control_diff_pu": 7.1165295878472534E-14,
+  "continuation_outcome_labels": [
+    "matches_original",
+    "matches_matpower",
+    "third_root",
+    "did_not_reach_target"
+  ],
+  "continuation_counts_coarse": [
+    7,
+    0,
+    0,
+    0
+  ],
+  "continuation_counts_fine": [
+    7,
+    0,
+    0,
+    0
+  ],
+  "max_complex_voltage_increment_on_accepted_steps": 0.0397570832415184,
+  "max_complex_voltage_difference_on_step_refinement": 1.1100865043425669E-9,
+  "different_labels_on_refinement": 0,
+  "continuation_definition": "Hold scheduled P/Q and controls fixed; linearly interpolate admittance from intact to post-outage. Two maximum parameter steps (1/16 and 1/32), with maximum accepted complex voltage changes 0.04 and 0.02 pu respectively. Numerical path test, not a dynamic stability certificate."
+}

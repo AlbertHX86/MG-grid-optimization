@@ -1,0 +1,13 @@
+{
+  "cases": 7,
+  "hours": 61320,
+  "matched_converged_hours": 61320,
+  "voltage_magnitudes_compared": 91305480,
+  "max_voltage_difference_pu": 1.9670012285644134e-09,
+  "max_accepted_power_mismatch_mw_mvar": 9.999844591487244e-07,
+  "flag_disagreements": 0,
+  "new_flag_disagreements": 0,
+  "convergence_disagreements": 0,
+  "all_reported_counts_match": true,
+  "native_newton_iterations": 172636
+}

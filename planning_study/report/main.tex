@@ -19,6 +19,13 @@
 \usetikzlibrary{positioning,arrows.meta,fit}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage[hidelinks]{hyperref}
+% T1 Latin Modern under XeTeX needs explicit mappings for literal Unicode dashes.
+\ifdefined\XeTeXversion
+  \catcode"2013=13
+  \catcode"2014=13
+  \protected\def–{\textendash}
+  \protected\def—{\textemdash}
+\fi
 \input{numbers.tex}
 \newcommand{\RS}{R\$}
 
@@ -39,7 +46,7 @@ reinforcements are justified. Following the CAISO policy-driven assessment taugh
 resource adequacy, then mapped to substations, tested for peak and off-peak deliverability on the EPE 2035 network model
 (\Nmonitored{} monitored main-grid branches, \Nncont{} N-1 contingencies), mitigated with costed alternatives, and valued in a
 network-constrained 8,760-hour production-cost simulation.
-The 2035 portfolio is deliverable in every study condition ($\alpha\ge\NalphaASthreeeveningnonsolar$) and adequate under the model's import
+The 2035 portfolio is deliverable in every DC study condition ($\alpha\ge\NalphaASthreeeveningnonsolar$) and adequate under the model's import
 assumption. In 2050 the midday output is deliverable ($\alpha=\NalphaBSonepeakdelivery$), but evening delivery of the 5.3~GW battery fleet,
 3.7~GW of it sited in the north, is not ($\alpha=\NalphaBSthreeeveningnonsolar$ to \NalphaBHSNcaiso), and the network-constrained simulation sheds
 \Nensbexistinggrid~GWh of load (\Nenspctbexistinggrid\% of demand). An attributable plan of \NgroupsR{} reinforcement groups costing
@@ -47,7 +54,8 @@ assumption. In 2050 the midday output is deliverable ($\alpha=\NalphaBSonepeakde
 \NbcrRfull--\NbcrRexcl). Siting the same batteries at load buses removes all but one reinforcement (\RS\NcapexL~M) and cuts the congestion
 cost from \RS\Ncongbexistinggrid~M/yr to \RS\Ncongbbessatloadexistinggrid~M/yr. Energy, not capacity, limits 2050 adequacy:
 a capacity-only COPT finds the system adequate, whereas an energy-limited Monte Carlo dispatch finds unserved energy in every simulated
-year and a dry year leaves \NeueBdryname~GWh unserved.
+year and a dry year leaves \NeueBdryname~GWh unserved. In an annual AC check on the existing grid, joint siting reduces 2050 hours with
+outage-induced low voltage from 1,004 to 72, while high-voltage exposure increases.
 \end{abstract}
 
 % ---------------------------------------------------------------------------------------------------------------------------
@@ -76,7 +84,7 @@ congestion and curtailment). Figure~\ref{fig:flow} maps the course flow onto thi
 \node[box]  (ra)   at (0,-1.9)  {1b Resource adequacy\\COPT, energy-limited MC};
 \node[box]  (mit)  at (7.2,-1.9) {3f Mitigation\\costed, verified on grid};
 \node[box]  (bcr)  at (10.8,-1.9) {4b Benefit-cost ratio,\\findings};
-\node[dbox] (opt)  at (7.2,-3.6) {5 Checks: P7, AC voltage,\\annual vs hourly matching};
+\node[dbox] (opt)  at (7.2,-3.6) {5 Checks: P7, AC N-0/N-1,\\annual vs hourly matching};
 \draw[ar] (p) -- (map); \draw[ar] (map) -- (del); \draw[ar] (del) -- (pcm); \draw[ar] (pcm) -- (bcr);
 \draw[ar] (p) -- (ra); \draw[ar] (del) -- (mit); \draw[ar] (mit) -- (bcr); \draw[ar, dashed] (bess) -- (map);
 \draw[ar] (del.south west) -- node[above, sloped, font=\tiny]{deliverable fraction} (ra.east);
@@ -212,7 +220,7 @@ capex to \RS\Npremplancapex~M and lower the full-plan BCR to \Nprembcr{}; with t
 2~MW + 2\%, median voltage error \Nacvmed~pu). The voltage screen (Table~\ref{tab:ac}) finds two new high-voltage buses in the 2035 off-peak
 cases (S1, S2), one new low-voltage bus in the 2050 evening reference cases (S3, HSN) and, with batteries at load, a voltage rise above the
 normal limit at up to 27 buses in the evening as the network unloads, a condition normally handled by reactive switching that the screen
-does not model.
+does not model. Section~\ref{sec:annualac} extends this intact-grid voltage check to every hour and tests the Phase~6 siting plans under single outages.
 
 \input{tables/p7}
 \input{tables/ac}
@@ -285,10 +293,12 @@ by \NmatchabsAone\% and removes the need for batteries, wind and biogas (Table~\
 have to accommodate.
 \input{tables/matching}
 
+\input{annual_ac}
+
 % ---------------------------------------------------------------------------------------------------------------------------
 \section{Findings}
 \begin{enumerate}\itemsep2pt
-\item \textbf{2035: no major grid improvement is needed.} The policy portfolio is deliverable in every study condition with 5.6--7.5$\times$
+\item \textbf{The 2035 DC study conditions require no major grid improvement.} The policy portfolio is deliverable in every DC study condition with 5.6--7.5$\times$
 margin, adds no congestion cost, and is adequate under the model's import assumption.
 \item \textbf{2050 midday solar is deliverable; 2050 evening storage discharge is not.} Midday $\alpha=\NalphaBSonepeakdelivery$; evening
 $\alpha=\NalphaBSthreeeveningnonsolar$--\NalphaBHSNcaiso{} because 3.7~GW of batteries sit in the north.
@@ -304,10 +314,12 @@ in every simulated year and \NeueBdryname~GWh in a dry year, needing up to \Ngap
 (below the 5\% screen).
 \item \textbf{The definition of fossil-free matters.} Annual instead of hourly matching lowers 2050 cost by \NmatchabsAone\%, if exports
 can be delivered.
+\item \textbf{The 2050 joint siting relieves thermal overloads and low voltage, but high voltage persists.} In the annual AC outage screen, hours with new thermal overload fall from 4,254 to 2,004 and hours with new low voltage fall from 1,004 to 72. New high-voltage events increase by 4.1\%.
 \end{enumerate}
 
-\paragraph{Limitations.} One network snapshot (evening) and one weather year; the 2050 network is the 2035 topology; DC flows except for the N-0 AC voltage screen, which covers the existing grid only and does not enforce generator reactive
-limits; hydro unit sizes are a proxy; reconductoring is modelled as a rating increase with unchanged
+\paragraph{Limitations.} The study uses one network snapshot (evening) and one weather year. The 2050 network uses the 2035 topology.
+Network constraints in the optimisation use DC flows. The steady-state AC checks cover the existing grid under intact and single-outage conditions, with generator reactive limits unenforced.
+Hydro unit sizes are a proxy; reconductoring is modelled as a rating increase with unchanged
 impedance and new circuits and banks as added parallel elements; P7 assumes that existing parallel circuits share structures; the
 production-cost benefits are computed for the P1 plan and held at their 2050 value over the asset life.
 
@@ -327,9 +339,9 @@ production-cost benefits are computed for the P1 plan and held at their 2050 val
 
 \FloatBarrier
 \section{Reproducibility}
-All results are produced by scripts in the repository (\texttt{hosting\_capacity/}, \texttt{planning\_study/}); every table and figure
-and most numbers in the text are generated from their CSV outputs (\texttt{planning\_study/\allowbreak report/\allowbreak make\_report.py}), and the few values
-typed into the text were checked against them. The environment is listed in
+Scripts in \texttt{hosting\_capacity/} and \texttt{planning\_study/} run the portfolio, deliverability and economic calculations.
+The report figures and tables are generated from CSV outputs by \texttt{planning\_study/\allowbreak report/\allowbreak make\_report.py}.
+For the annual AC checks, \texttt{planning\_study/\allowbreak results/\allowbreak annual\_ac/} contains the verified scenario summaries used to draw both figures and generate the contingency table. The planning-study README links the coverage and solution checks, including independent verification in MATLAB R2026a with MATPOWER 8.1. The planning environment is listed in
 \texttt{planning\_study/\allowbreak requirements.txt} (PyPSA 1.2.4, linopy 0.10.1, HiGHS 1.16, pandas 2.3.3). Third-party input data are not
 redistributed. Readable station names are inferred from network bus codes.
 \end{document}

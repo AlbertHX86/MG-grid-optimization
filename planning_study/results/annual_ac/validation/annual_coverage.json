@@ -1,0 +1,20 @@
+{
+  "physical_scenarios": 4,
+  "hours_per_case": 8760,
+  "contingencies_per_hour": 437,
+  "bus_count_solved": 1489,
+  "voltage_buses_screened": 150,
+  "monitored_branches": 555,
+  "active_pairs_per_hour": 242153,
+  "scheduled_branch_outage_hour_checks": 8485041120,
+  "scheduled_voltage_bus_outage_hour_checks": 2296872000,
+  "scheduled_pfs": 15312480,
+  "snapshot_converged_outages": 437,
+  "unresolved_before_continuation": 41,
+  "recovered_by_continuation": 0,
+  "rechecked_groups": 7,
+  "worst_converged_mismatch": 9.99999905104687e-07,
+  "signature": "bc8dd481afdf398ff5c57b2b163a0b9bdd09c616eed5af98ec8f5b90a9cd5aed",
+  "converged": 15312439,
+  "failed": 41
+}

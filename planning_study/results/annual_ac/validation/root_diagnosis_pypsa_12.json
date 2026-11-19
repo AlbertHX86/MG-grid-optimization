@@ -1,0 +1,29 @@
+{
+  "months": 12,
+  "compared_candidate_pairs": 224,
+  "distinct_root_pairs_by_case": {
+    "p6_2035_sequential": 0,
+    "p6_2035_siting": 0,
+    "p6_2050_sequential": 7,
+    "p6_2050_siting": 0
+  },
+  "case_hours_with_discrepancies": 7,
+  "case_hours_with_all_count_differences_explained": 7,
+  "matched_count_cells_on_these_hours": 154,
+  "count_cells_on_these_hours": 154,
+  "old_solution_has_higher_monitored_minimum": 7,
+  "matpower_solution_has_higher_monitored_minimum": 0,
+  "max_pq_or_pv_active_reactive_residual_mw_mvar_native_pypsa": 5.515662451216485e-07,
+  "max_control_error_pu": 7.105427357601002e-14,
+  "max_complex_voltage_difference_after_perturbed_cross_start_native_pypsa": 8.801831950094974e-10,
+  "range_max_bus_voltage_magnitude_differences_pu": [
+    0.18392761074447184,
+    0.3131089323339685
+  ],
+  "continuation_sensitive_hours_fully_matching_old_counts_and_peaks": 7,
+  "continuation_substituted_count_cells_matching_prior": 154,
+  "continuation_substituted_peak_cells_matching_prior": 63,
+  "expected_peak_cells_on_affected_hours": 63,
+  "maximum_group_extremum_replay_difference": 6.661338147750939e-16,
+  "maximum_hourly_extremum_difference_after_continuation_substitution": 1.027707918765941e-10
+}
