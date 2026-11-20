@@ -1,0 +1,5 @@
+case,hours,hours_ac_new_snapshot,ac_new_snapshot,hours_voltage_low_new_n0,voltage_low_new_n0,hours_voltage_high_new_n0,voltage_high_new_n0,min_vm_pu,pf_failed,ac_new_snapshot_peak_ratio,dc_new_snapshot
+p6_2035_sequential,8760,8,8,0,0,8760,706176,0.87381034615,0,1.0150967555,0
+p6_2035_siting,8760,11,14,0,0,8760,707094,0.87381034615,0,1.0151104877,0
+p6_2050_sequential,8760,4254,36901,1004,2196,8760,435235,0.69518122381,37,1.2495654216,0
+p6_2050_siting,8760,2004,2630,72,204,8760,452949,0.87153483621,4,1.0534450153,0

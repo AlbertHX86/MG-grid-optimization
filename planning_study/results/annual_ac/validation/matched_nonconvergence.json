@@ -1,0 +1,36 @@
+{
+  "cases": [
+    "p6_2035_sequential",
+    "p6_2035_siting",
+    "p6_2050_sequential",
+    "p6_2050_siting"
+  ],
+  "originally_unresolved": [
+    0,
+    0,
+    37,
+    4
+  ],
+  "matpower_retries": [
+    0,
+    0,
+    37,
+    4
+  ],
+  "matpower_solved": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "both_unresolved": [
+    0,
+    0,
+    37,
+    4
+  ],
+  "number_compared": 41,
+  "verified_solved_residual_upper_bound_mw_mvar": 0,
+  "production_signature": "d384c63e8b2ccee8a7a009faa749b67597fbc616331591580147297aa7f9431f",
+  "method": "Same plan, outage and hour. Old 384-hour blocks replayed in memory and matched to archived failure counts. Independent MATPOWER 256-hour blocks and identical production retries."
+}

@@ -20,3 +20,13 @@ Run everything after restoring the private inputs: `PYTHON=<env> bash run_hostin
 The four Method B cases run in parallel (about 75 min each for 2050; on an 8 GB machine memory is tight).
 Data sources: `data/gads_class_averages.csv` (NERC GADS Brochure 4, 2016–2020) and `data/unit_costs.csv` (EPE/ANEEL documents),
 each with its citation. No hourly series or network files are written to `results/`.
+
+### Annual AC verification on the existing grid
+
+The [planning report](report/main.pdf) extends the representative-hour checks to 8,760 hours in Section 8. The [intact-grid summary](results/annual_ac/n0_summary.csv) covers seven Phase 5 and Phase 6 cases. The [single-outage summary](results/annual_ac/n1_summary.csv) covers four Phase 6 cases, each tested against the same 437 contingencies as the DC study.
+
+From the repository root, run `python planning_study/report/make_annual_ac_figures.py` to rebuild both figures and the contingency table from these two CSVs. The full report generator also calls this step (`python -X utf8 planning_study/report/make_report.py`). The [section source](report/annual_ac.tex) defines the baselines for new violations and how hours and equipment events are counted.
+
+MATPOWER independently reproduced the hourly intact voltage decisions across [61,320 solved hours](results/annual_ac/validation/n0_validation.json). The [outage coverage](results/annual_ac/validation/annual_coverage.json) and [matched nonconvergence check](results/annual_ac/validation/matched_nonconvergence.json) account for 15,312,480 cases, including 41 with undetermined outcomes. In the outage CSV, `dc_new_snapshot` and `ac_new_snapshot` count new overloads against each method's own snapshot under the same outage. Voltage events use the intact state in the same hour as their reference.
+
+For seven 2050 reference cases, [MATPOWER continuation at two step sizes](results/annual_ac/validation/root_diagnosis_matpower_12.json) and an [independent PyPSA comparison](results/annual_ac/validation/root_diagnosis_pypsa_12.json) document the solution used in the final table. It gives a 2050 reference annual minimum of **0.6952 p.u.** The CSVs and validation records are aggregated outputs of the full simulation. A new power-flow run requires the underlying network case and each plan's hourly nodal dispatch.

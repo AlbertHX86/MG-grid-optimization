@@ -629,12 +629,15 @@ def poster_numbers():
 
 
 def main():
+    from make_annual_ac_figures import main as annual_ac_figures
+
     chk, poi = deliverability(); figures_deliverability(chk, poi)
     portfolio(); figure_portfolio(); adequacy(); mitigation(); regional(); p7_ac(); M = pcm(); figure_pcm(M); poster_numbers()
     global FS, SUFFIX
     FS, SUFFIX = 1.4, '_poster'
     with plt.rc_context({'font.size': fs(8.5)}):
         figures_deliverability(chk, poi); figure_pcm(M)
+    annual_ac_figures()
     (HERE / 'numbers.tex').write_text('\n'.join(rf'\newcommand{{\N{k}}}{{{v}}}' for k, v in sorted(NUM.items())) + '\n')
     print(len(NUM), 'numbers;', len(list(TAB.glob('*.tex'))), 'tables;', len(list(FIG.glob('*.pdf'))), 'figures')
 

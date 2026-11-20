@@ -1,0 +1,8 @@
+case,hours,new_low_hours,new_high_hours,new_either_hours
+p5_2035_reference,8760,0,2047,2047
+p5_2050_reference,8760,573,108,680
+p5_2050_bess_at_load,8760,194,500,694
+p6_2035_sequential,8760,0,8154,8154
+p6_2035_siting,8760,0,8154,8154
+p6_2050_sequential,8760,445,3641,3998
+p6_2050_siting,8760,162,3769,3931
